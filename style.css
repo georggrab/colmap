@@ -1,0 +1,13 @@
+body {
+  font-family: Helvetica, sans-serif; }
+
+.main-desc {
+  display: block;
+  position: absolute;
+  top: 150px;
+  left: 50px; }
+  .main-desc h1 {
+    font-weight: 300; }
+  .main-desc p {
+    font-weight: 100;
+    text-transform: uppercase; }
