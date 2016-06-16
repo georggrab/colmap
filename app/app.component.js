@@ -1,9 +1,4 @@
 "use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -14,20 +9,35 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = require('@angular/core');
-var material_1 = require('./material');
-var AppComponent = (function (_super) {
-    __extends(AppComponent, _super);
+var router_deprecated_1 = require('@angular/router-deprecated');
+var map_component_1 = require('./map.component');
+var create_component_1 = require('./create.component');
+var AppComponent = (function () {
     function AppComponent() {
-        _super.apply(this, arguments);
     }
     AppComponent = __decorate([
         core_1.Component({
-            selector: 'create',
-            template: "\n\t\t<form action=\"#\">\n\t\t  <div class=\"mdl-textfield mdl-js-textfield\">\n\t\t    <input class=\"mdl-textfield__input\" type=\"text\" id=\"sample1\">\n\t\t    <label class=\"mdl-textfield__label\" for=\"sample1\">Text...</label>\n\t\t  </div>\n\t\t  <button class=\"mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent\">\n  create\n</button>\n\t\t</form>\n\n\t"
-        }), 
+            selector: 'colmap-root',
+            template: "\n\t\t<router-outlet></router-outlet>\n\t",
+            directives: [router_deprecated_1.ROUTER_DIRECTIVES],
+            providers: [
+                router_deprecated_1.ROUTER_PROVIDERS,
+            ]
+        }),
+        router_deprecated_1.RouteConfig([{
+                path: '/create',
+                name: "Create",
+                useAsDefault: true,
+                component: create_component_1.CreateComponent
+            }, {
+                path: '/map/:mapid',
+                name: 'Map',
+                component: map_component_1.MapComponent
+            }
+        ]), 
         __metadata('design:paramtypes', [])
     ], AppComponent);
     return AppComponent;
-}(material_1.MaterialTemplate));
+}());
 exports.AppComponent = AppComponent;
 //# sourceMappingURL=app.component.js.map

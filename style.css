@@ -11,3 +11,27 @@ body {
   .main-desc p {
     font-weight: 100;
     text-transform: uppercase; }
+
+#card-initial {
+  position: fixed;
+  z-index: 2;
+  right: 20px;
+  top: 20px;
+  background: #3E4EB8;
+  color: white; }
+  #card-initial h4, #card-initial a {
+    color: white; }
+  #card-initial .mdl-card__actions {
+    display: flex;
+    box-sizing: border-box;
+    align-items: center; }
+  #card-initial .mdl-card__actions > .material-icons {
+    padding-right: 10px; }
+
+#mmap {
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0; }

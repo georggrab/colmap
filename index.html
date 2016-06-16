@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <base href="/">
     <title>distmap</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-	<link rel="stylesheet" href="https://code.getmdl.io/1.1.3/material.indigo-pink.min.css">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.1.3/material.indigo-pink.min.css">
+
+    <!-- openlayers -->
+    <link rel="stylesheet" href="http://openlayers.org/en/v3.16.0/css/ol.css" type="text/css">
     <!-- 1. Load libraries -->
      <!-- Polyfill(s) for older browsers -->
     <script src="node_modules/core-js/client/shim.min.js"></script>
@@ -22,10 +26,9 @@
   <!-- 3. Display the application -->
   <body>
   	<div class="main-desc">
-  		<h1>COLMAP</h1>
-  		<p>Anonymous, collaborative geographic intelligence platform</p>
-	    <create>Loading...</create>
+	    <colmap-root>Loading...</colmap-root>
   	</div>
+  <script defer src="http://openlayers.org/en/v3.16.0/build/ol.js"></script>
 	<script defer src="https://code.getmdl.io/1.1.3/material.min.js"></script>
   </body>
 </html>

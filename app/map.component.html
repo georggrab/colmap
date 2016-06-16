@@ -1,0 +1,16 @@
+<div (window:resize)="onResize($event)" [style.width.px]="bw" [style.height.px]="bh" id="mmap" class="map-container"></div>
+<div [hidden]="!showInitial(this)" id="card-initial" class="mdl-card mdl-shadow--2dp">
+  <div class="mdl-card__title mdl-card--expand">
+    <h4>
+    Viewing<br>
+    {{mapid}}
+    </h4>
+  </div>
+  <div class=" mdl-card__actions mdl-card--border">
+    <a (click)="toggle(this)" class="mdl-button mdl-js-button mdl-js-ripple-effect">
+      close
+    </a>
+    <div class="mdl-layout-spacer"></div>
+    <i class="material-icons">close</i>
+  </div>
+</div>
