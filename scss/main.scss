@@ -3,6 +3,14 @@ $font : Helvetica, sans-serif;
 body{
 	font-family: $font;
 }
+.cards{
+	position:fixed;
+	right:140px;
+	top:20px;
+	height:100%;
+	width:200px;
+	z-index:2;
+}
 .main-desc{
 	display:block;
 	position:absolute;
@@ -18,19 +26,17 @@ body{
 	p{
 		font-weight:100;
 		text-transform:uppercase;
+		    width: 400px;
+    text-align: justify;
 	}
 }
 
-#card-initial{
-	position:fixed;
-	z-index:2;
-	right:20px;
-	top:20px;
-	background:#3E4EB8;
-	color:white;
-	h4, a{
+.card-initial{
+	margin-bottom:20px;
+	> .mdl-card__title {
+		background:#3E4EB8;
 		color:white;
-	}
+	} 
 	.mdl-card__actions {
 	  display: flex;
 	  box-sizing:border-box;
@@ -41,6 +47,27 @@ body{
 	}
 }
 
+#icon-users, #icon-services{
+	cursor:default;
+}
+
+map{
+	position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+#choose-tile-provider{
+	position: absolute;
+    bottom: 100px;
+    margin: 40px;
+    label{
+    	display:block;
+    }
+}
+
 #mmap{
 	position: fixed;
 	z-index:1;
@@ -48,4 +75,14 @@ body{
     left: 0;
     right: 0;
     bottom: 0;
+}
+
+.map-layout-transparent {
+  background: black;
+}
+.map-layout-transparent .mdl-layout__header,
+.map-layout-transparent .mdl-layout__drawer-button {
+  /* This background is dark, so we set text to white. Use 87% black instead if
+     your background is light. */
+  color: white;
 }

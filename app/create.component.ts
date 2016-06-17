@@ -5,19 +5,7 @@ import { MapComponent } from './map.component';
 
 @Component({
 	selector: 'create',
-	template: `
-		<h1>COLMAP</h1>
-		<p>Anonymous, collaborative geographic intelligence platform</p>
-		<form action="#">
-		<div class="mdl-textfield mdl-js-textfield">
-		<input value="{{mapID}}" class="mdl-textfield__input" type="text" id="sample1">
-		<label class="mdl-textfield__label" for="sample1">Text...</label>
-		</div>
-		<button (click)="toMap(mapID)" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-		create
-		</button>
-		</form>
-	`
+	templateUrl: 'app/create.component.html'
 })
 export class CreateComponent extends MaterialTemplate {
 	mapID: string;

@@ -1,5 +1,70 @@
-<div (window:resize)="onResize($event)" [style.width.px]="bw" [style.height.px]="bh" id="mmap" class="map-container"></div>
-<div [hidden]="!showInitial(this)" id="card-initial" class="mdl-card mdl-shadow--2dp">
+<div class="map-layout mdl-layout mdl-js-layout">
+<header class="mdl-layout__header mdl-layout--fixed-header">
+  <div class="mdl-layout__header-row">
+    <!-- Title -->
+    <span class="mdl-layout-title">{{mapid}}
+      <span id="icon-users" class="material-icons mdl-badge mdl-badge--overlap" data-badge="1">account_box</span>
+      <div class="mdl-tooltip" for="icon-users">verbundene user (mit dir)</div> 
+      <span id="icon-services" class="material-icons mdl-badge mdl-badge--overlap" data-badge="0">layers</span>
+      <div class="mdl-tooltip" for="icon-services">verbundene services</div> 
+    </span>
+    <!-- Add spacer, to align navigation to the right -->
+    <div class="mdl-layout-spacer"></div>
+    <!-- Navigation -->
+    <nav class="mdl-navigation">
+      <a class="mdl-navigation__link" href="">Link</a>
+      <a class="mdl-navigation__link" href="">Link</a>
+      <a class="mdl-navigation__link" href="">Link</a>
+      <a class="mdl-navigation__link" href="">Link</a>
+    </nav>
+  </div>
+</header>
+<div class="mdl-layout__drawer">
+  <span class="mdl-layout-title">COLMAP</span>
+  <nav class="mdl-navigation">
+    <a class="mdl-navigation__link" (click)="btnDebug()">debug (expose2window)</a>
+  </nav>
+  <nav id="choose-tile-provider">
+    <h6>Tile Provider</h6>
+    <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="option-1">
+      <input type="radio" id="option-1" class="mdl-radio__button" name="options" value="1" checked>
+      <span (click)="provider(ol.source.Stamen)" class="mdl-radio__label">Stamen</span>
+    </label>
+    <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="option-2">
+      <input type="radio" id="option-2" class="mdl-radio__button" name="options" value="2">
+      <span (click)="provider(ol.source.OSM)" class="mdl-radio__label">OpenStreetMap</span>
+    </label>
+    <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="option-3">
+      <input type="radio" id="option-3" class="mdl-radio__button" name="options" value="3">
+      <span (click)="provider(ol.source.BingMaps)" class="mdl-radio__label">Bing</span>
+    </label>
+  </nav>
+</div>
+<main class="mdl-layout__content">
+  <div (window:resize)="onResize($event)" [style.width.px]="bw" [style.height.px]="bh" id="mmap" class="map-container"></div>
+  <div id="map-snackbar" class="mdl-js-snackbar mdl-snackbar">
+    <div class="mdl-snackbar__text"></div>
+    <button class="mdl-snackbar__action" type="button"></button>
+  </div>
+</main>
+</div>
+<!--<div class="cards">
+<div [hidden]="!showInitial(0)" class="card-initial mdl-card mdl-shadow--2dp">
+  <div class="mdl-card__title">
+    <h2 class="mdl-card__title-text">connected</h2>
+  </div>
+  <div class="mdl-card__supporting-text">
+    Listening on: {{mapid}}
+  </div>
+  <div class="mdl-card__actions mdl-card--border">
+    <a (click)="toggle(0)" class="mdl-button mdl-js-button mdl-js-ripple-effect">
+      close
+    </a>
+    <div class="mdl-layout-spacer"></div>
+    <i class="material-icons">close</i>
+  </div>
+</div>
+<div [hidden]="!showInitial(1)" class="card-initial mdl-card mdl-shadow--2dp">
   <div class="mdl-card__title mdl-card--expand">
     <h4>
     Viewing<br>
@@ -7,10 +72,11 @@
     </h4>
   </div>
   <div class=" mdl-card__actions mdl-card--border">
-    <a (click)="toggle(this)" class="mdl-button mdl-js-button mdl-js-ripple-effect">
+    <a (click)="toggle(1)" class="mdl-button mdl-js-button mdl-js-ripple-effect">
       close
     </a>
     <div class="mdl-layout-spacer"></div>
     <i class="material-icons">close</i>
   </div>
 </div>
+</div>-->

@@ -32,7 +32,7 @@ var CreateComponent = (function (_super) {
     CreateComponent = __decorate([
         core_1.Component({
             selector: 'create',
-            template: "\n\t\t<h1>COLMAP</h1>\n\t\t<p>Anonymous, collaborative geographic intelligence platform</p>\n\t\t<form action=\"#\">\n\t\t<div class=\"mdl-textfield mdl-js-textfield\">\n\t\t<input value=\"{{mapID}}\" class=\"mdl-textfield__input\" type=\"text\" id=\"sample1\">\n\t\t<label class=\"mdl-textfield__label\" for=\"sample1\">Text...</label>\n\t\t</div>\n\t\t<button (click)=\"toMap(mapID)\" class=\"mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent\">\n\t\tcreate\n\t\t</button>\n\t\t</form>\n\t"
+            templateUrl: 'app/create.component.html'
         }), 
         __metadata('design:paramtypes', [router_deprecated_1.Router])
     ], CreateComponent);

@@ -21,16 +21,53 @@ var MapComponent = (function (_super) {
     function MapComponent(routeParams) {
         _super.call(this);
         this.routeParams = routeParams;
+        // Openlayers Library
         this.ol = ol;
-        this.cards = {};
-        this.cards[0] = true;
     }
-    MapComponent.prototype.showInitial = function (idk) {
-        return this.cards[0];
+    MapComponent.prototype.connect = function () {
+        // socket connection logic here..
+        this.snackbarContainer.MaterialSnackbar.showSnackbar({
+            message: 'connected to ' + this.mapid,
+            timeout: 2000,
+            actionHandler: function (event) { },
+            actionText: 'OK'
+        });
     };
-    MapComponent.prototype.toggle = function (idk) {
-        this.cards[0] = false;
-        document.getElementById('mmap').focus();
+    MapComponent.prototype.btnDebug = function () {
+        document.map = this;
+        this.snackbarContainer.MaterialSnackbar.showSnackbar({
+            message: 'Exposed MapComponent to: document.map',
+            timeout: 2000,
+            actionHandler: function (event) { },
+            actionText: 'OK'
+        });
+    };
+    MapComponent.prototype.provider = function (olSource) {
+        var layer;
+        switch (olSource) {
+            case this.ol.source.Stamen:
+                layer = new this.ol.layer.Tile({
+                    source: new this.ol.source.Stamen({ layer: 'toner' })
+                });
+                break;
+            case this.ol.source.OSM:
+                layer = new this.ol.layer.Tile({
+                    source: new this.ol.source.OSM({})
+                });
+                break;
+            case this.ol.source.BingMaps:
+                layer = new this.ol.layer.Tile({
+                    source: new this.ol.source.BingMaps({
+                        key: 'AnOpGK0vuwH0a2tPUKih1RPmu6REVRH7SqP8jhSNFKeDORF7cCXGkhxY1wzbF7ul',
+                        imagerySet: 'AerialWithLabels'
+                    })
+                });
+                break;
+            default: break;
+        }
+        // if layer == currentLayer bleh TODO
+        this.map.getLayers().clear();
+        this.map.addLayer(layer);
     };
     MapComponent.prototype.onResize = function (event) {
         this.bw = window.innerWidth;
@@ -38,6 +75,11 @@ var MapComponent = (function (_super) {
         this.map.updateSize();
     };
     ;
+    MapComponent.prototype.ngAfterViewInit = function () {
+        _super.prototype.ngAfterViewInit.call(this);
+        this.snackbarContainer = document.querySelector('#map-snackbar');
+        this.connect();
+    };
     MapComponent.prototype.ngOnInit = function () {
         var gotId = this.routeParams.get('mapid');
         this.bw = window.innerWidth;
@@ -54,7 +96,8 @@ var MapComponent = (function (_super) {
             view: new this.ol.View({
                 center: this.ol.proj.fromLonLat([37.41, 8.82]),
                 zoom: 4
-            })
+            }),
+            controls: new this.ol.Collection()
         });
     };
     MapComponent = __decorate([
