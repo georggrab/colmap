@@ -10,8 +10,12 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var core_1 = require('@angular/core');
 var router_deprecated_1 = require('@angular/router-deprecated');
+// Application Components that have a Route
 var map_component_1 = require('./map.component');
 var create_component_1 = require('./create.component');
+// Storage Devices for Preferences
+var preferences_1 = require('./colmap/state/preferences');
+var localstorage_1 = require('./colmap/state/storage/localstorage');
 var AppComponent = (function () {
     function AppComponent() {
     }
@@ -22,6 +26,8 @@ var AppComponent = (function () {
             directives: [router_deprecated_1.ROUTER_DIRECTIVES],
             providers: [
                 router_deprecated_1.ROUTER_PROVIDERS,
+                preferences_1.PerferenceService,
+                core_1.provide(Storage, { useClass: localstorage_1.LocalStorage })
             ]
         }),
         router_deprecated_1.RouteConfig([{

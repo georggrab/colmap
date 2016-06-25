@@ -16,31 +16,51 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var core_1 = require('@angular/core');
 var router_deprecated_1 = require('@angular/router-deprecated');
 var material_1 = require('./material');
+var preferences_1 = require('./colmap/state/preferences');
 var MapComponent = (function (_super) {
     __extends(MapComponent, _super);
-    function MapComponent(routeParams) {
+    function MapComponent(routeParams, preferences) {
         _super.call(this);
         this.routeParams = routeParams;
+        this.preferences = preferences;
         // Openlayers Library
         this.ol = ol;
     }
     MapComponent.prototype.connect = function () {
         // socket connection logic here..
+        this.notification('connected to ' + this.mapid);
+    };
+    MapComponent.prototype.notification = function (of) {
         this.snackbarContainer.MaterialSnackbar.showSnackbar({
-            message: 'connected to ' + this.mapid,
+            message: of,
             timeout: 2000,
             actionHandler: function (event) { },
             actionText: 'OK'
         });
     };
+    // TODO remove debug function
     MapComponent.prototype.btnDebug = function () {
         document.map = this;
-        this.snackbarContainer.MaterialSnackbar.showSnackbar({
-            message: 'Exposed MapComponent to: document.map',
-            timeout: 2000,
-            actionHandler: function (event) { },
-            actionText: 'OK'
+        this.notification('Exposed Component to: document.map');
+    };
+    MapComponent.prototype.mapAddCoords = function (position) {
+        debugger;
+        var pos = ol.proj.fromLonLat([position.coords.longitude, position.coords.latitude]);
+        this.notification('LON=' + position.coords.longitude);
+        var marker = new ol.Overlay({
+            position: pos,
+            positioning: 'center-center',
+            element: document.getElementById('marker-own-location'),
+            stopEvent: false
         });
+        this.map.addOverlay(marker);
+    };
+    MapComponent.prototype.btnAddLocation = function () {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(this.mapAddCoords.bind(this));
+        }
+        else {
+        }
     };
     MapComponent.prototype.provider = function (olSource) {
         var layer;
@@ -105,7 +125,7 @@ var MapComponent = (function (_super) {
             selector: 'map',
             templateUrl: 'app/map.component.html'
         }), 
-        __metadata('design:paramtypes', [router_deprecated_1.RouteParams])
+        __metadata('design:paramtypes', [router_deprecated_1.RouteParams, preferences_1.PerferenceService])
     ], MapComponent);
     return MapComponent;
 }(material_1.MaterialTemplate));

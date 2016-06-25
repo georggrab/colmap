@@ -1,7 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, Inject, provide } from '@angular/core';
 import { RouteConfig, Router, ROUTER_DIRECTIVES, ROUTER_PROVIDERS } from '@angular/router-deprecated';
+
+// Application Components that have a Route
 import { MapComponent } from './map.component';
 import { CreateComponent } from './create.component';
+
+// Storage Devices for Preferences
+import { PerferenceService } from './colmap/state/preferences';
+import { LocalStorage } from './colmap/state/storage/localstorage';
 
 @Component({
 	selector: 'colmap-root',
@@ -11,6 +17,9 @@ import { CreateComponent } from './create.component';
 	directives: [ROUTER_DIRECTIVES],
 	providers: [
 		ROUTER_PROVIDERS,
+		PerferenceService,
+		provide(Storage, {useClass : LocalStorage})
+		
 	]
 }) @RouteConfig([ {
 		path: '/create',

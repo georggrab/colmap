@@ -1,8 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ReflectiveInjector, Inject } from '@angular/core';
 import { RouteParams } from '@angular/router-deprecated';
 import { MaterialTemplate } from './material';
 
+import { GeoGraphNetwork } from './colmap/graph/graphnetwork';
+import { PerferenceService } from './colmap/state/preferences';
+
 declare var ol : any;
+declare var document: any;
+declare var navigator: any;
 
 @Component({
 	selector: 'map',
@@ -25,28 +30,51 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 	snackbarContainer: any;
 
 
-	constructor(private routeParams: RouteParams){
+	constructor(private routeParams: RouteParams, private preferences : PerferenceService){
 		super();
 	}
 
 	connect(){
 		// socket connection logic here..
-		this.snackbarContainer.MaterialSnackbar.showSnackbar({
-			message: 'connected to ' + this.mapid
-		  , timeout: 2000
-		  , actionHandler: function(event){}
-		  , actionText: 'OK'
-		});
+		this.notification('connected to ' + this.mapid);
 	}
 
-	btnDebug(){
-		document.map = this;
+	notification(of){
 		this.snackbarContainer.MaterialSnackbar.showSnackbar({
-			message: 'Exposed MapComponent to: document.map'
+			message: of
 		  , timeout: 2000
 		  , actionHandler: function(event){}
 		  , actionText: 'OK'
 		});
+
+	}
+
+	// TODO remove debug function
+	btnDebug(){
+		document.map = this;
+		this.notification('Exposed Component to: document.map');
+	}
+
+	mapAddCoords(position){
+		debugger;
+		var pos = ol.proj.fromLonLat([position.coords.longitude, position.coords.latitude]);
+		this.notification('LON='+position.coords.longitude);
+		var marker = new ol.Overlay({
+			position: pos
+		  , positioning: 'center-center'
+			, element: document.getElementById('marker-own-location')		
+			, stopEvent: false
+		});
+		this.map.addOverlay(marker);
+	}
+
+	btnAddLocation(){
+		if (navigator.geolocation) {
+			navigator.geolocation.getCurrentPosition(
+				this.mapAddCoords.bind(this));
+		} else {
+
+		}
 	}
 
 	provider(olSource){
