@@ -27,7 +27,7 @@ var AppComponent = (function () {
             providers: [
                 router_deprecated_1.ROUTER_PROVIDERS,
                 preferences_1.PerferenceService,
-                core_1.provide(Storage, { useClass: localstorage_1.LocalStorage })
+                core_1.provide("StorageDevice", { useClass: localstorage_1.LocalStorage })
             ]
         }),
         router_deprecated_1.RouteConfig([{

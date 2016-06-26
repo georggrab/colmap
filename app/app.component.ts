@@ -6,7 +6,7 @@ import { MapComponent } from './map.component';
 import { CreateComponent } from './create.component';
 
 // Storage Devices for Preferences
-import { PerferenceService } from './colmap/state/preferences';
+import { PerferenceService, CStorage } from './colmap/state/preferences';
 import { LocalStorage } from './colmap/state/storage/localstorage';
 
 @Component({
@@ -18,7 +18,7 @@ import { LocalStorage } from './colmap/state/storage/localstorage';
 	providers: [
 		ROUTER_PROVIDERS,
 		PerferenceService,
-		provide(Storage, {useClass : LocalStorage})
+		provide("StorageDevice", {useClass : LocalStorage})
 		
 	]
 }) @RouteConfig([ {

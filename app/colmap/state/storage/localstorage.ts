@@ -1,4 +1,4 @@
-import { Storage } from '../preferences';
+import { CStorage } from '../preferences';
 import { Injectable } from '@angular/core';
 
 /* Normally would be something like "T implements Serializable",
@@ -8,7 +8,7 @@ import { Injectable } from '@angular/core';
    TODO implement storage capabilities priority checking
 */
 @Injectable()
-export class LocalStorage implements Storage {
+export class LocalStorage implements CStorage {
 	constructor(){
 		if (typeof(Storage) === "undefined"){
 			throw "LocalStorage unsupported";

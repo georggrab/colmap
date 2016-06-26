@@ -9,6 +9,12 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = require('@angular/core');
+var CStorage = (function () {
+    function CStorage() {
+    }
+    return CStorage;
+}());
+exports.CStorage = CStorage;
 var Preference = (function () {
     function Preference() {
         this.ChosenMap = "ol.source.OSM";
@@ -56,7 +62,7 @@ var PerferenceService = (function () {
     };
     PerferenceService = __decorate([
         core_1.Injectable(), 
-        __metadata('design:paramtypes', [Storage])
+        __metadata('design:paramtypes', [CStorage])
     ], PerferenceService);
     return PerferenceService;
 }());

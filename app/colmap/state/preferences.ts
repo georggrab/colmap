@@ -1,8 +1,9 @@
-import { Component, Injectable } from '@angular/core';
+import { Component, Injectable, Inject } from '@angular/core';
 
 declare var ol: any;
 
-export interface Storage {
+export class CStorage{}
+export interface CStorage {
 	save(thing : Object): void;
 	load(): Object;
 }
@@ -17,7 +18,7 @@ export var PREFERENCE_DEFAULT = new Preference();
 export class PerferenceService {
 	private pref: Preference = PREFERENCE_DEFAULT;
 
-	constructor(private StorageDevice : Storage){
+	constructor(private StorageDevice : CStorage){
 		// Initialize Storage Device with default preferences
 		// if it is empty.
 		if (this.StorageDevice.load() == null){
