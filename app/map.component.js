@@ -44,7 +44,6 @@ var MapComponent = (function (_super) {
         this.notification('Exposed Component to: document.map');
     };
     MapComponent.prototype.mapAddCoords = function (position) {
-        debugger;
         var pos = ol.proj.fromLonLat([position.coords.longitude, position.coords.latitude]);
         this.notification('LON=' + position.coords.longitude);
         var marker = new ol.Overlay({
@@ -62,20 +61,21 @@ var MapComponent = (function (_super) {
         else {
         }
     };
-    MapComponent.prototype.provider = function (olSource) {
+    MapComponent.prototype.provider = function (olSource, apply) {
+        if (apply === void 0) { apply = true; }
         var layer;
         switch (olSource) {
-            case this.ol.source.Stamen:
+            case 'ol.source.Stamen':
                 layer = new this.ol.layer.Tile({
                     source: new this.ol.source.Stamen({ layer: 'toner' })
                 });
                 break;
-            case this.ol.source.OSM:
+            case 'ol.source.OSM':
                 layer = new this.ol.layer.Tile({
                     source: new this.ol.source.OSM({})
                 });
                 break;
-            case this.ol.source.BingMaps:
+            case 'ol.source.BingMaps':
                 layer = new this.ol.layer.Tile({
                     source: new this.ol.source.BingMaps({
                         key: 'AnOpGK0vuwH0a2tPUKih1RPmu6REVRH7SqP8jhSNFKeDORF7cCXGkhxY1wzbF7ul',
@@ -83,11 +83,13 @@ var MapComponent = (function (_super) {
                     })
                 });
                 break;
-            default: break;
         }
-        // if layer == currentLayer bleh TODO
-        this.map.getLayers().clear();
-        this.map.addLayer(layer);
+        if (apply) {
+            this.map.getLayers().clear();
+            this.map.addLayer(layer);
+        }
+        this.preferences.setPreference("ChosenMap", olSource);
+        return layer;
     };
     MapComponent.prototype.onResize = function (event) {
         this.bw = window.innerWidth;
@@ -105,13 +107,11 @@ var MapComponent = (function (_super) {
         this.bw = window.innerWidth;
         this.bh = window.innerHeight;
         this.mapid = gotId;
+        debugger;
         this.map = new this.ol.Map({
             target: 'mmap',
             layers: [
-                new this.ol.layer.Tile({
-                    source: new this.ol.source.Stamen({ layer: 'toner' }),
-                    preload: 4
-                })
+                this.provider(this.preferences.getPreferences().ChosenMap, false)
             ],
             view: new this.ol.View({
                 center: this.ol.proj.fromLonLat([37.41, 8.82]),

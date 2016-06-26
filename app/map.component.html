@@ -28,16 +28,16 @@
   <nav id="choose-tile-provider">
     <h6>Tile Provider</h6>
     <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="option-1">
-      <input type="radio" id="option-1" class="mdl-radio__button" name="options" value="1" checked>
-      <span (click)="provider(ol.source.Stamen)" class="mdl-radio__label">Stamen</span>
+      <input type="radio" id="option-1" class="mdl-radio__button" name="options" value="1">
+      <span (click)="provider('ol.source.Stamen')" class="mdl-radio__label">Stamen</span>
     </label>
     <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="option-2">
       <input type="radio" id="option-2" class="mdl-radio__button" name="options" value="2">
-      <span (click)="provider(ol.source.OSM)" class="mdl-radio__label">OpenStreetMap</span>
+      <span (click)="provider('ol.source.OSM')" class="mdl-radio__label">OpenStreetMap</span>
     </label>
     <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="option-3">
       <input type="radio" id="option-3" class="mdl-radio__button" name="options" value="3">
-      <span (click)="provider(ol.source.BingMaps)" class="mdl-radio__label">Bing</span>
+      <span (click)="provider('ol.source.BingMaps')" class="mdl-radio__label">Bing</span>
     </label>
   </nav>
 </div>

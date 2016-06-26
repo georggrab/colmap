@@ -11,7 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var core_1 = require('@angular/core');
 var Preference = (function () {
     function Preference() {
-        this.ChosenMap = ol.source.OSM;
+        this.ChosenMap = "ol.source.OSM";
     }
     return Preference;
 }());
@@ -21,19 +21,34 @@ var PerferenceService = (function () {
     function PerferenceService(StorageDevice) {
         this.StorageDevice = StorageDevice;
         this.pref = exports.PREFERENCE_DEFAULT;
+        // Initialize Storage Device with default preferences
+        // if it is empty.
+        if (this.StorageDevice.load() == null) {
+            var p = new Preference();
+            this.StorageDevice.save(p);
+        }
     }
     PerferenceService.prototype.getPreferences = function () {
         this.pref = this.StorageDevice.load();
         return this.pref;
+    };
+    PerferenceService.prototype.getPreference = function (key) {
+        var pref = this.StorageDevice.load();
+        if (pref.hasOwnProperty(key)) {
+            return pref[key];
+        }
+        else {
+            return null;
+        }
     };
     PerferenceService.prototype.setPreferences = function (pref) {
         this.pref = pref;
         this.StorageDevice.save(this.pref);
     };
     PerferenceService.prototype.setPreference = function (key, val) {
-        // Fallback to JS for this
         if (this.pref.hasOwnProperty(key)) {
             this.pref[key] = val;
+            this.StorageDevice.save(this.pref);
         }
         else {
             throw "PreferenceService: Unknown Preference key ${key}";

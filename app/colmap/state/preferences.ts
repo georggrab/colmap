@@ -1,14 +1,14 @@
-import { Component, Injectable, ReflectiveInjector, Inject } from '@angular/core';
+import { Component, Injectable } from '@angular/core';
 
 declare var ol: any;
 
-export interface Storage<T>{
-	save(T): void;
-	load(): T;
+export interface Storage {
+	save(thing : Object): void;
+	load(): Object;
 }
 
 export class Preference {
-	ChosenMap: any = ol.source.OSM;
+	ChosenMap: any = "ol.source.OSM";
 }
 
 export var PREFERENCE_DEFAULT = new Preference();
@@ -17,13 +17,27 @@ export var PREFERENCE_DEFAULT = new Preference();
 export class PerferenceService {
 	private pref: Preference = PREFERENCE_DEFAULT;
 
-	constructor(private StorageDevice : Storage<Preference>){
-
+	constructor(private StorageDevice : Storage){
+		// Initialize Storage Device with default preferences
+		// if it is empty.
+		if (this.StorageDevice.load() == null){
+			let p = new Preference();
+			this.StorageDevice.save(p);
+		}
 	}
 
 	getPreferences(): Preference {
-		this.pref = this.StorageDevice.load();
+		this.pref = <Preference> this.StorageDevice.load();
 		return this.pref;
+	}
+
+	getPreference(key : string) {
+		let pref = this.StorageDevice.load();
+		if (pref.hasOwnProperty(key)){
+			return pref[key];
+		} else {
+			return null;
+		}
 	}
 
 	setPreferences(pref : Preference){
@@ -32,9 +46,9 @@ export class PerferenceService {
 	}
 
 	setPreference(key : string, val : any){
-		// Fallback to JS for this
 		if (this.pref.hasOwnProperty(key)){
 			this.pref[key] = val;
+			this.StorageDevice.save(this.pref);
 		} else {
 			throw "PreferenceService: Unknown Preference key ${key}";
 		}

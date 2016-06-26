@@ -56,7 +56,6 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 	}
 
 	mapAddCoords(position){
-		debugger;
 		var pos = ol.proj.fromLonLat([position.coords.longitude, position.coords.latitude]);
 		this.notification('LON='+position.coords.longitude);
 		var marker = new ol.Overlay({
@@ -77,18 +76,18 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 		}
 	}
 
-	provider(olSource){
+	provider(olSource : string, apply : boolean = true) : string {
 		var layer: any;
 		switch (olSource) {
-			case this.ol.source.Stamen:
+			case 'ol.source.Stamen':
 				layer = new this.ol.layer.Tile({
 					source: new this.ol.source.Stamen({ layer: 'toner' })
 				}); break;
-			case this.ol.source.OSM:
+			case 'ol.source.OSM':
 				layer = new this.ol.layer.Tile({
 					source: new this.ol.source.OSM({})
 				}); break;
-			case this.ol.source.BingMaps:
+			case 'ol.source.BingMaps':
 				layer = new this.ol.layer.Tile({
 					source: new this.ol.source.BingMaps({
 						key: 'AnOpGK0vuwH0a2tPUKih1RPmu6REVRH7SqP8jhSNFKeDORF7cCXGkhxY1wzbF7ul'
@@ -96,11 +95,13 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 					  , imagerySet: 'AerialWithLabels'
 					})
 				}); break;
-			default: break;
 		}
-		// if layer == currentLayer bleh TODO
-		this.map.getLayers().clear();
-		this.map.addLayer(layer);
+		if (apply) {
+			this.map.getLayers().clear();
+			this.map.addLayer(layer);
+		}
+		this.preferences.setPreference("ChosenMap", olSource)
+		return layer;
 	}
 
 	onResize(event){
@@ -121,15 +122,12 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 		this.bw = window.innerWidth;
 		this.bh = window.innerHeight;
 		this.mapid = gotId;
-
+		debugger;
 
 		this.map = new this.ol.Map({
 			target: 'mmap',
 			layers: [
-				new this.ol.layer.Tile({
-					source: new this.ol.source.Stamen({layer:'toner'}),
-					preload:4
-				})
+				this.provider(this.preferences.getPreferences().ChosenMap, false)
 			],
 			view: new this.ol.View({
 				center: this.ol.proj.fromLonLat([37.41, 8.82]),

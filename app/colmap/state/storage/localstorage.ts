@@ -8,17 +8,17 @@ import { Injectable } from '@angular/core';
    TODO implement storage capabilities priority checking
 */
 @Injectable()
-export class LocalStorage<T> implements Storage<T> {
+export class LocalStorage implements Storage {
 	constructor(){
 		if (typeof(Storage) === "undefined"){
 			throw "LocalStorage unsupported";
 		}
 	}
-	load() : T {
-		return <T> JSON.parse(window.localStorage.getItem("preferences"));
+	load() : Object {
+		return JSON.parse(window.localStorage.getItem("preferences"));
 	}
 
-	save(anything : T){
+	save(anything : Object){
 		window.localStorage.setItem("preferences", JSON.stringify(anything));
 	}
 }
