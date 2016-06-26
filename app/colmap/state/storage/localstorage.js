@@ -12,14 +12,20 @@ var core_1 = require('@angular/core');
 /* Normally would be something like "T implements Serializable",
    but since every JS Object is -- in this simple case, anyways -- serializable,
    i've left that part out
+   TODO implement runtime checking, expiration checking, etc.
+   TODO implement storage capabilities priority checking
 */
 var LocalStorage = (function () {
     function LocalStorage() {
+        if (typeof (Storage) === "undefined") {
+            throw "LocalStorage unsupported";
+        }
     }
     LocalStorage.prototype.load = function () {
-        return null;
+        return JSON.parse(window.localStorage.getItem("preferences"));
     };
     LocalStorage.prototype.save = function (anything) {
+        window.localStorage.setItem("preferences", JSON.stringify(anything));
     };
     LocalStorage = __decorate([
         core_1.Injectable(), 
