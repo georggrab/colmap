@@ -56,7 +56,7 @@ var PerferenceService = (function () {
             this.StorageDevice.save(this.pref);
         }
         else {
-            throw "PreferenceService: Unknown Preference key ${key}";
+            throw "PreferenceService: Unknown Preference key " + key;
         }
     };
     PerferenceService = __decorate([

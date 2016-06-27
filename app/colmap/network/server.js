@@ -10,30 +10,6 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var core_1 = require('@angular/core');
 var graphnetwork_1 = require('../graph/graphnetwork');
-var COLConnectionInfo = (function () {
-    function COLConnectionInfo() {
-    }
-    return COLConnectionInfo;
-}());
-exports.COLConnectionInfo = COLConnectionInfo;
-var GraphNetworkHealth = (function () {
-    function GraphNetworkHealth() {
-    }
-    return GraphNetworkHealth;
-}());
-exports.GraphNetworkHealth = GraphNetworkHealth;
-var GraphNetworkUpdate = (function () {
-    function GraphNetworkUpdate() {
-    }
-    return GraphNetworkUpdate;
-}());
-exports.GraphNetworkUpdate = GraphNetworkUpdate;
-var GraphEdge = (function () {
-    function GraphEdge() {
-    }
-    return GraphEdge;
-}());
-exports.GraphEdge = GraphEdge;
 var BackendService = (function () {
     function BackendService() {
     }
@@ -43,7 +19,8 @@ var BackendService = (function () {
             connectedUsers: 5,
             connectedServices: 1,
             graphnetwork: {
-                nodes: 4
+                nodes: 4,
+                lastUpdate: 2222222222
             }
         };
     };
@@ -56,6 +33,26 @@ var BackendService = (function () {
         g.connector("node1", ["node2", "node3"], false);
         g.connector("node4", ["node3"]);
         return g;
+    };
+    BackendService.prototype.retrieveDelta = function (since) {
+        return {
+            nodesUpdated: 3,
+            additions: [
+                {
+                    from: "node1", to: "node4", bidirectional: true
+                }
+            ],
+            deletions: [
+                {
+                    from: "node1", to: "node2"
+                }
+            ],
+            highlight: [
+                {
+                    from: "node4", to: "node3"
+                }
+            ]
+        };
     };
     BackendService = __decorate([
         core_1.Injectable(), 

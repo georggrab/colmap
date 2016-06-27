@@ -1,30 +1,8 @@
 import { Injectable } from '@angular/core';
-import { GeoGraphNetwork, CNode, Coords } from '../graph/graphnetwork';
-
-export class COLConnectionInfo {
-	connected : boolean;
-	connectedUsers : number;
-	connectedServices : number;
-	graphnetwork : GraphNetworkHealth;
-}
-
-export class GraphNetworkHealth {
-	nodes : number;
-}
-
-export class GraphNetworkUpdate {
-	nodesUpdated : number;
-	additions : GraphEdge[];
-	deletions : GraphEdge[];
-	highlight : GraphEdge[];
-}
-
-export class GraphEdge {
-	from : string;
-	to : string;
-	bidirectional : boolean;
-	meta : any;
-}
+import { GeoGraphNetwork, CNode, Coords,
+	COLConnectionInfo, GraphNetworkHealth,
+	GraphNetworkUpdate, GraphEdge
+	} from '../graph/graphnetwork';
 
 @Injectable()
 export class BackendService {
@@ -34,7 +12,8 @@ export class BackendService {
 			connectedUsers : 5,
 			connectedServices : 1,
 			graphnetwork : <GraphNetworkHealth> {
-				nodes: 4
+				nodes: 4,
+				lastUpdate : 2222222222
 			}
 		};
 	}
@@ -51,5 +30,26 @@ export class BackendService {
 		g.connector("node4", ["node3"]);
 
 		return g;
+	}
+
+	retrieveDelta(since : number) : GraphNetworkUpdate {
+		return <GraphNetworkUpdate> {
+			nodesUpdated: 3,
+			additions: [
+				<GraphEdge> {
+					from: "node1", to : "node4", bidirectional : true
+				}
+			],
+			deletions: [
+				<GraphEdge> {
+					from: "node1", to : "node2"
+				}
+			],
+			highlight: [
+				<GraphEdge> {
+					from: "node4", to: "node3"
+				}
+			]
+		}
 	}
 }

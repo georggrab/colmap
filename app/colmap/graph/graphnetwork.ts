@@ -26,6 +26,7 @@ export class COLConnectionInfo {
 
 export class GraphNetworkHealth {
 	nodes : number;
+	lastUpdate : number;
 }
 
 export class GraphNetworkUpdate {

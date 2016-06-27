@@ -50,7 +50,7 @@ export class PerferenceService {
 			this.pref[key] = val;
 			this.StorageDevice.save(this.pref);
 		} else {
-			throw "PreferenceService: Unknown Preference key ${key}";
+			throw `PreferenceService: Unknown Preference key ${key}`;
 		}
 	}
 }
