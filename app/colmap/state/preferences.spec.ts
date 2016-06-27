@@ -24,7 +24,13 @@ describe('Preference Subsystem', () => {
 		{provide: CStorage, useClass : MockStorageDevice}]
 	);
 
-	it('should be able to get preferences', inject([PerferenceService], (pref) => {
-		return pref
+	it('should be able to get preferences', inject([PerferenceService], (pref : PerferenceService) => {
+		let p = pref.getPreferences();
+		expect(p.ChosenMap).toEqual("something");
+	}));
+
+	it('should be able to get specific preference', inject([PerferenceService], (pref : PerferenceService) => {
+		let p = pref.getPreference("ChosenMap");
+		expect(p).toEqual("something");
 	}));
 });

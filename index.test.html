@@ -30,7 +30,8 @@
     // #3. Import the spec file explicitly
     Promise.all([
     	System.import('app/colmap/state/storage/localstorage.spec'),
-      System.import('app/colmap/state/preferences.spec')
+      System.import('app/colmap/state/preferences.spec'),
+      System.import('app/colmap/network/server.spec'),
     ])
 
       // #4. wait for all imports to load ...
