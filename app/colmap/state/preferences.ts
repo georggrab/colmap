@@ -28,8 +28,7 @@ export class PerferenceService {
 	}
 
 	getPreferences(): Preference {
-		this.pref = <Preference> this.StorageDevice.load();
-		return this.pref;
+		return <Preference> this.StorageDevice.load();
 	}
 
 	getPreference(key : string) {

@@ -35,8 +35,7 @@ var PerferenceService = (function () {
         }
     }
     PerferenceService.prototype.getPreferences = function () {
-        this.pref = this.StorageDevice.load();
-        return this.pref;
+        return this.StorageDevice.load();
     };
     PerferenceService.prototype.getPreference = function (key) {
         var pref = this.StorageDevice.load();

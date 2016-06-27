@@ -7,7 +7,7 @@ import {
   inject,
   injectAsync
 } from '@angular/core/testing';
-import { PerferenceService, CStorage } from './preferences';
+import { PerferenceService, CStorage, Preference } from './preferences';
 import { provide, Injectable, Provider } from '@angular/core';
 
 export class MockStorageDevice {
@@ -32,5 +32,17 @@ describe('Preference Subsystem', () => {
 	it('should be able to get specific preference', inject([PerferenceService], (pref : PerferenceService) => {
 		let p = pref.getPreference("ChosenMap");
 		expect(p).toEqual("something");
+	}));
+
+	it('should be able to set preferences', inject([PerferenceService], (pref : PerferenceService) => {
+		let l : Preference = new Preference();
+		l.ChosenMap = 'lul';
+		pref.setPreferences(l);
+		expect(pref.getPreferences().ChosenMap).toEqual("lul");
+	}));
+
+	it('should be able to set specific preference', inject([PerferenceService], (pref : PerferenceService) => {
+		pref.setPreference("ChosenMap", "sup");
+		expect(pref.getPreference("ChosenMap")).toEqual("sup");
 	}));
 });
