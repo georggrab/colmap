@@ -16,6 +16,7 @@ var create_component_1 = require('./create.component');
 // Storage Devices for Preferences
 var preferences_1 = require('./colmap/state/preferences');
 var localstorage_1 = require('./colmap/state/storage/localstorage');
+var server_1 = require('./colmap/network/server');
 var AppComponent = (function () {
     function AppComponent() {
     }
@@ -27,7 +28,8 @@ var AppComponent = (function () {
             providers: [
                 router_deprecated_1.ROUTER_PROVIDERS,
                 preferences_1.PerferenceService,
-                core_1.provide("StorageDevice", { useClass: localstorage_1.LocalStorage })
+                core_1.provide(preferences_1.CStorage, { useClass: localstorage_1.LocalStorage }),
+                core_1.provide(server_1.BackendService, { useClass: server_1.BackendService })
             ]
         }),
         router_deprecated_1.RouteConfig([{

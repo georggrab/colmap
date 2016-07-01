@@ -3,9 +3,9 @@
   <div class="mdl-layout__header-row">
     <!-- Title -->
     <span class="mdl-layout-title title-mapid">{{mapid}}
-      <span id="icon-users" class="material-icons mdl-badge mdl-badge--overlap" data-badge="1">account_box</span>
+      <span id="icon-users" class="material-icons mdl-badge mdl-badge--overlap" [attr.data-badge]="connectedUsers">account_box</span>
       <div class="mdl-tooltip" for="icon-users">verbundene user (mit dir)</div> 
-      <span id="icon-services" class="material-icons mdl-badge mdl-badge--overlap" data-badge="0">layers</span>
+      <span id="icon-services" class="material-icons mdl-badge mdl-badge--overlap" [attr.data-badge]="connectedServices">layers</span>
       <div class="mdl-tooltip" for="icon-services">verbundene services</div> 
     </span>
     <!-- Add spacer, to align navigation to the right -->

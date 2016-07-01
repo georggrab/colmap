@@ -2,8 +2,11 @@ import { Component, OnInit, ReflectiveInjector, Inject } from '@angular/core';
 import { RouteParams } from '@angular/router-deprecated';
 import { MaterialTemplate } from './material';
 
-import { GeoGraphNetwork } from './colmap/graph/graphnetwork';
+import { GeoGraphNetwork, COLConnectionInfo, GraphNetworkHealth, Coords, CNode } from './colmap/graph/graphnetwork';
 import { PerferenceService } from './colmap/state/preferences';
+import { BackendService } from './colmap/network/server';
+
+import { Observable } from 'rxjs/Observable';
 
 declare var ol : any;
 declare var document: any;
@@ -14,29 +17,78 @@ declare var navigator: any;
 	templateUrl: 'app/map.component.html'
 })
 export class MapComponent extends MaterialTemplate implements OnInit {
-	// URL MAP id
+	/* Databound Attributes: */
 	mapid : string;
+	connectedUsers : number = 0;
+	connectedServices : number = 0;
 
-	// Window height & width
-	bw: number; bh: number;
-
-	// Openlayers Library
-	ol: any = ol;
-
-	// Openlayers3 Map Controller
-	map: any;
-
-	// Notification container
+	// Notification container TODO make this a service/component
 	snackbarContainer: any;
 
+	/* Things we need for OpenLayers */
+	ol: any = ol;
+	bw: number; bh: number;
+	map: any;
 
-	constructor(private routeParams: RouteParams, private preferences : PerferenceService){
+	/* Things we need for the GraphNetwork */
+	lastNetworkHealth : GraphNetworkHealth = null;
+	features : any = new ol.Collection()
+	graphLayer : any = new ol.layer.Vector({
+		source : new ol.source.Vector({
+			features: this.features
+		})
+	});
+
+	constructor(private routeParams: RouteParams, 
+		private preferences : PerferenceService,
+		private backendService : BackendService){
 		super();
+	}
+
+	buildNetworkInitial(graphNetwork : Observable<GeoGraphNetwork>){
+		this.notification("buildNetworkInitial()..");
+		// Step 1: Place Nodes on Map
+		graphNetwork.forEach(network => {
+			network.nodeIterator((node : CNode<Coords>, key, n) => {
+				console.log("adding feature");
+				let feature = new ol.Feature(new ol.geom.Point(node.type.getOl()));
+				feature.setStyle(new ol.style.Style({
+					image : new ol.style.RegularShape({
+						fill : new ol.style.Fill({color: 'red'}),
+						stroke : new ol.style.Stroke({color: 'black', width: 1}),
+						points: 4,
+						radius: 10,
+						radius2: 0,
+						angle: 0
+					})
+				}));
+				this.features.extend(feature);
+			}, () => {
+				this.graphLayer.changed();
+			});
+		});
+
+		// Step 2: Connect Nodes
 	}
 
 	connect(){
 		// socket connection logic here..
-		this.notification('connected to ' + this.mapid);
+		let source : Observable<COLConnectionInfo> = this.backendService.connect(this.mapid);
+		source.forEach(connectionInfo => {
+			if (connectionInfo.connected){
+				this.notification('connected to ' + this.mapid);
+				this.connectedUsers = connectionInfo.connectedUsers;
+				this.connectedServices = connectionInfo.connectedServices;
+
+				if (this.lastNetworkHealth === null){
+					this.lastNetworkHealth = connectionInfo.networkHealth;
+					this.buildNetworkInitial(this.backendService.downloadNetwork());
+				}
+
+			} else {
+				this.notification('connection failed');
+			}
+		});
 	}
 
 	notification(of){
@@ -49,11 +101,6 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 
 	}
 
-	// TODO remove debug function
-	btnDebug(){
-		document.map = this;
-		this.notification('Exposed Component to: document.map');
-	}
 
 	mapAddCoords(position){
 		var pos = ol.proj.fromLonLat([position.coords.longitude, position.coords.latitude]);
@@ -65,6 +112,12 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 			, stopEvent: false
 		});
 		this.map.addOverlay(marker);
+	}
+
+	// TODO remove debug function
+	btnDebug(){
+		document.map = this;
+		this.notification('Exposed Component to: document.map');
 	}
 
 	btnAddLocation(){
@@ -122,12 +175,12 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 		this.bw = window.innerWidth;
 		this.bh = window.innerHeight;
 		this.mapid = gotId;
-		debugger;
 
 		this.map = new this.ol.Map({
 			target: 'mmap',
 			layers: [
-				this.provider(this.preferences.getPreferences().ChosenMap, false)
+				this.provider(this.preferences.getPreferences().ChosenMap, false),
+				this.graphLayer
 			],
 			view: new this.ol.View({
 				center: this.ol.proj.fromLonLat([37.41, 8.82]),

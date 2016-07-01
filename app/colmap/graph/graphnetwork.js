@@ -17,6 +17,9 @@ var Coords = (function () {
         this.longitude = longitude;
         this.latitude = latitude;
     }
+    Coords.prototype.getOl = function () {
+        return [this.longitude, this.latitude];
+    };
     return Coords;
 }());
 exports.Coords = Coords;
@@ -48,6 +51,15 @@ var GraphNetwork = (function () {
     function GraphNetwork() {
         this.nodes = {};
     }
+    GraphNetwork.prototype.nodeIterator = function (iterator, after) {
+        // replace this with smartass graph traversal function
+        var n = 0;
+        for (var key in this.nodes) {
+            iterator(this.nodes[key], key, n);
+            n++;
+        }
+        after();
+    };
     GraphNetwork.prototype.add = function (label, c) {
         this.nodes[label] = c;
         return c;

@@ -17,18 +17,70 @@ var core_1 = require('@angular/core');
 var router_deprecated_1 = require('@angular/router-deprecated');
 var material_1 = require('./material');
 var preferences_1 = require('./colmap/state/preferences');
+var server_1 = require('./colmap/network/server');
 var MapComponent = (function (_super) {
     __extends(MapComponent, _super);
-    function MapComponent(routeParams, preferences) {
+    function MapComponent(routeParams, preferences, backendService) {
         _super.call(this);
         this.routeParams = routeParams;
         this.preferences = preferences;
-        // Openlayers Library
+        this.backendService = backendService;
+        this.connectedUsers = 0;
+        this.connectedServices = 0;
+        /* Things we need for OpenLayers */
         this.ol = ol;
+        /* Things we need for the GraphNetwork */
+        this.lastNetworkHealth = null;
+        this.features = new ol.Collection();
+        this.graphLayer = new ol.layer.Vector({
+            source: new ol.source.Vector({
+                features: this.features
+            })
+        });
     }
+    MapComponent.prototype.buildNetworkInitial = function (graphNetwork) {
+        var _this = this;
+        this.notification("buildNetworkInitial()..");
+        // Step 1: Place Nodes on Map
+        graphNetwork.forEach(function (network) {
+            network.nodeIterator(function (node, key, n) {
+                console.log("adding feature");
+                var feature = new ol.Feature(new ol.geom.Point(node.type.getOl()));
+                feature.setStyle(new ol.style.Style({
+                    image: new ol.style.RegularShape({
+                        fill: new ol.style.Fill({ color: 'red' }),
+                        stroke: new ol.style.Stroke({ color: 'black', width: 1 }),
+                        points: 4,
+                        radius: 10,
+                        radius2: 0,
+                        angle: 0
+                    })
+                }));
+                _this.features.extend(feature);
+            }, function () {
+                _this.graphLayer.changed();
+            });
+        });
+        // Step 2: Connect Nodes
+    };
     MapComponent.prototype.connect = function () {
+        var _this = this;
         // socket connection logic here..
-        this.notification('connected to ' + this.mapid);
+        var source = this.backendService.connect(this.mapid);
+        source.forEach(function (connectionInfo) {
+            if (connectionInfo.connected) {
+                _this.notification('connected to ' + _this.mapid);
+                _this.connectedUsers = connectionInfo.connectedUsers;
+                _this.connectedServices = connectionInfo.connectedServices;
+                if (_this.lastNetworkHealth === null) {
+                    _this.lastNetworkHealth = connectionInfo.networkHealth;
+                    _this.buildNetworkInitial(_this.backendService.downloadNetwork());
+                }
+            }
+            else {
+                _this.notification('connection failed');
+            }
+        });
     };
     MapComponent.prototype.notification = function (of) {
         this.snackbarContainer.MaterialSnackbar.showSnackbar({
@@ -37,11 +89,6 @@ var MapComponent = (function (_super) {
             actionHandler: function (event) { },
             actionText: 'OK'
         });
-    };
-    // TODO remove debug function
-    MapComponent.prototype.btnDebug = function () {
-        document.map = this;
-        this.notification('Exposed Component to: document.map');
     };
     MapComponent.prototype.mapAddCoords = function (position) {
         var pos = ol.proj.fromLonLat([position.coords.longitude, position.coords.latitude]);
@@ -53,6 +100,11 @@ var MapComponent = (function (_super) {
             stopEvent: false
         });
         this.map.addOverlay(marker);
+    };
+    // TODO remove debug function
+    MapComponent.prototype.btnDebug = function () {
+        document.map = this;
+        this.notification('Exposed Component to: document.map');
     };
     MapComponent.prototype.btnAddLocation = function () {
         if (navigator.geolocation) {
@@ -107,11 +159,11 @@ var MapComponent = (function (_super) {
         this.bw = window.innerWidth;
         this.bh = window.innerHeight;
         this.mapid = gotId;
-        debugger;
         this.map = new this.ol.Map({
             target: 'mmap',
             layers: [
-                this.provider(this.preferences.getPreferences().ChosenMap, false)
+                this.provider(this.preferences.getPreferences().ChosenMap, false),
+                this.graphLayer
             ],
             view: new this.ol.View({
                 center: this.ol.proj.fromLonLat([37.41, 8.82]),
@@ -125,7 +177,7 @@ var MapComponent = (function (_super) {
             selector: 'map',
             templateUrl: 'app/map.component.html'
         }), 
-        __metadata('design:paramtypes', [router_deprecated_1.RouteParams, preferences_1.PerferenceService])
+        __metadata('design:paramtypes', [router_deprecated_1.RouteParams, preferences_1.PerferenceService, server_1.BackendService])
     ], MapComponent);
     return MapComponent;
 }(material_1.MaterialTemplate));

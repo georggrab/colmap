@@ -8,6 +8,7 @@ import { CreateComponent } from './create.component';
 // Storage Devices for Preferences
 import { PerferenceService, CStorage } from './colmap/state/preferences';
 import { LocalStorage } from './colmap/state/storage/localstorage';
+import { BackendService } from './colmap/network/server'; 
 
 @Component({
 	selector: 'colmap-root',
@@ -18,7 +19,8 @@ import { LocalStorage } from './colmap/state/storage/localstorage';
 	providers: [
 		ROUTER_PROVIDERS,
 		PerferenceService,
-		provide("StorageDevice", {useClass : LocalStorage})
+		provide(CStorage, {useClass : LocalStorage}),
+		provide(BackendService, {useClass : BackendService})
 		
 	]
 }) @RouteConfig([ {

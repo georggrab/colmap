@@ -4,32 +4,46 @@ import { GeoGraphNetwork, CNode, Coords,
 	GraphNetworkUpdate, GraphEdge
 	} from '../graph/graphnetwork';
 
+import { Observable } from 'rxjs/Observable';
+
 @Injectable()
 export class BackendService {
-	connect(endpoint : string) : COLConnectionInfo {
-		return <COLConnectionInfo> {
-			connected : true,
-			connectedUsers : 5,
-			connectedServices : 1,
-			graphnetwork : <GraphNetworkHealth> {
-				nodes: 4,
-				lastUpdate : 2222222222
-			}
-		};
+	connect(endpoint : string) : Observable<COLConnectionInfo> {
+		return Observable.create((observer) => {
+			// TODO Stub for Network things!
+			setTimeout(() => {
+				let c = <COLConnectionInfo> {
+					connected : true,
+					connectedUsers : 5,
+					connectedServices : 1,
+					networkHealth : <GraphNetworkHealth> {
+						nodes: 4,
+						lastUpdate : 2222222222
+					}
+				};
+				observer.next(c);
+			} , 1000);
+		});
 	}
 
-	downloadNetwork() : GeoGraphNetwork {
-		let g = new GeoGraphNetwork();
+	downloadNetwork() : Observable<GeoGraphNetwork> {
+		return Observable.create((observer) => {
+			// TODO Stub for Network things!	
+			setTimeout(() => {
+				let g = new GeoGraphNetwork();
 
-		g.add("node1", new CNode<Coords>(new Coords(123,321)));
-		g.add("node2", new CNode<Coords>(new Coords(123,123)));
-		g.add("node3", new CNode<Coords>(new Coords(456,789)));
-		g.add("node4", new CNode<Coords>(new Coords(975,451)));
+				g.add("node1", new CNode<Coords>(new Coords(49.847544,12.3184657)));
+				g.add("node2", new CNode<Coords>(new Coords(49.847544,12.3185657)));
+				g.add("node3", new CNode<Coords>(new Coords(49.847544,12.3186657)));
+				g.add("node4", new CNode<Coords>(new Coords(49.847544,12.3187657)));
 
-		g.connector("node1", ["node2", "node3"], false);
-		g.connector("node4", ["node3"]);
+				g.connector("node1", ["node2", "node3"], false);
+				g.connector("node4", ["node3"]);
 
-		return g;
+				observer.next(g);
+
+			} , 2000);
+		});
 	}
 
 	retrieveDelta(since : number) : GraphNetworkUpdate {
@@ -53,3 +67,4 @@ export class BackendService {
 		}
 	}
 }
+

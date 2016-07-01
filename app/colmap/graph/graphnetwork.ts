@@ -4,7 +4,7 @@ interface ITransferOL {
 }
 
 export class CNode<T>{
-	constructor (private type : T){
+	constructor (public type : T){
 
 	}
 	connections: CNode<T>[] = [];
@@ -12,8 +12,10 @@ export class CNode<T>{
 }
 
 export class Coords {
-	constructor(private longitude : number, private latitude : number){
-
+	getOl() : Array<number> {
+		return [this.longitude, this.latitude];
+	}
+	constructor(public longitude : number, public latitude : number){
 	}
 }
 
@@ -21,7 +23,7 @@ export class COLConnectionInfo {
 	connected : boolean;
 	connectedUsers : number;
 	connectedServices : number;
-	graphnetwork : GraphNetworkHealth;
+	networkHealth : GraphNetworkHealth;
 }
 
 export class GraphNetworkHealth {
@@ -46,6 +48,16 @@ export class GraphEdge {
 
 export class GraphNetwork<T> {
 	protected nodes = {};
+
+	public nodeIterator(iterator : (node : CNode<T>, key?: string, n? : number) => void, after? : () => void) : void {
+		// replace this with smartass graph traversal function
+		let n = 0;
+		for (var key in this.nodes){
+			iterator(this.nodes[key], key, n);
+			n++;
+		}
+		after();
+	}
 
 	public add(label : string, c: CNode<T>) : CNode<T>{
 		this.nodes[label] = c;

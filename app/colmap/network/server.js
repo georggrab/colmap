@@ -10,29 +10,41 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var core_1 = require('@angular/core');
 var graphnetwork_1 = require('../graph/graphnetwork');
+var Observable_1 = require('rxjs/Observable');
 var BackendService = (function () {
     function BackendService() {
     }
     BackendService.prototype.connect = function (endpoint) {
-        return {
-            connected: true,
-            connectedUsers: 5,
-            connectedServices: 1,
-            graphnetwork: {
-                nodes: 4,
-                lastUpdate: 2222222222
-            }
-        };
+        return Observable_1.Observable.create(function (observer) {
+            // TODO Stub for Network things!
+            setTimeout(function () {
+                var c = {
+                    connected: true,
+                    connectedUsers: 5,
+                    connectedServices: 1,
+                    networkHealth: {
+                        nodes: 4,
+                        lastUpdate: 2222222222
+                    }
+                };
+                observer.next(c);
+            }, 1000);
+        });
     };
     BackendService.prototype.downloadNetwork = function () {
-        var g = new graphnetwork_1.GeoGraphNetwork();
-        g.add("node1", new graphnetwork_1.CNode(new graphnetwork_1.Coords(123, 321)));
-        g.add("node2", new graphnetwork_1.CNode(new graphnetwork_1.Coords(123, 123)));
-        g.add("node3", new graphnetwork_1.CNode(new graphnetwork_1.Coords(456, 789)));
-        g.add("node4", new graphnetwork_1.CNode(new graphnetwork_1.Coords(975, 451)));
-        g.connector("node1", ["node2", "node3"], false);
-        g.connector("node4", ["node3"]);
-        return g;
+        return Observable_1.Observable.create(function (observer) {
+            // TODO Stub for Network things!	
+            setTimeout(function () {
+                var g = new graphnetwork_1.GeoGraphNetwork();
+                g.add("node1", new graphnetwork_1.CNode(new graphnetwork_1.Coords(49.847544, 12.3184657)));
+                g.add("node2", new graphnetwork_1.CNode(new graphnetwork_1.Coords(49.847544, 12.3185657)));
+                g.add("node3", new graphnetwork_1.CNode(new graphnetwork_1.Coords(49.847544, 12.3186657)));
+                g.add("node4", new graphnetwork_1.CNode(new graphnetwork_1.Coords(49.847544, 12.3187657)));
+                g.connector("node1", ["node2", "node3"], false);
+                g.connector("node4", ["node3"]);
+                observer.next(g);
+            }, 2000);
+        });
     };
     BackendService.prototype.retrieveDelta = function (since) {
         return {
