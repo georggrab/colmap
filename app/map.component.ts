@@ -32,7 +32,7 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 
 	/* Things we need for the GraphNetwork */
 	lastNetworkHealth : GraphNetworkHealth = null;
-	features : any = new ol.Collection()
+	features : any = new ol.Collection();
 	graphLayer : any = new ol.layer.Vector({
 		source : new ol.source.Vector({
 			features: this.features
@@ -51,7 +51,9 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 		graphNetwork.forEach(network => {
 			network.nodeIterator((node : CNode<Coords>, key, n) => {
 				console.log("adding feature");
-				let feature = new ol.Feature(new ol.geom.Point(node.type.getOl()));
+				let pos = ol.proj.fromLonLat(node.type.getOl());
+				debugger;
+				let feature = new ol.Feature(new ol.geom.Point(pos));
 				feature.setStyle(new ol.style.Style({
 					image : new ol.style.RegularShape({
 						fill : new ol.style.Fill({color: 'red'}),
@@ -62,9 +64,9 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 						angle: 0
 					})
 				}));
-				this.features.extend(feature);
+				this.features.push(feature);
 			}, () => {
-				this.graphLayer.changed();
+				//this.graphLayer.changed();
 			});
 		});
 

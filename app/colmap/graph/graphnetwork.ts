@@ -13,7 +13,7 @@ export class CNode<T>{
 
 export class Coords {
 	getOl() : Array<number> {
-		return [this.longitude, this.latitude];
+		return [this.latitude, this.longitude];
 	}
 	constructor(public longitude : number, public latitude : number){
 	}

@@ -18,7 +18,7 @@ var Coords = (function () {
         this.latitude = latitude;
     }
     Coords.prototype.getOl = function () {
-        return [this.longitude, this.latitude];
+        return [this.latitude, this.longitude];
     };
     return Coords;
 }());

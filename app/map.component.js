@@ -45,7 +45,9 @@ var MapComponent = (function (_super) {
         graphNetwork.forEach(function (network) {
             network.nodeIterator(function (node, key, n) {
                 console.log("adding feature");
-                var feature = new ol.Feature(new ol.geom.Point(node.type.getOl()));
+                var pos = ol.proj.fromLonLat(node.type.getOl());
+                debugger;
+                var feature = new ol.Feature(new ol.geom.Point(pos));
                 feature.setStyle(new ol.style.Style({
                     image: new ol.style.RegularShape({
                         fill: new ol.style.Fill({ color: 'red' }),
@@ -56,9 +58,9 @@ var MapComponent = (function (_super) {
                         angle: 0
                     })
                 }));
-                _this.features.extend(feature);
+                _this.features.push(feature);
             }, function () {
-                _this.graphLayer.changed();
+                //this.graphLayer.changed();
             });
         });
         // Step 2: Connect Nodes

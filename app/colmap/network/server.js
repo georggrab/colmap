@@ -36,10 +36,10 @@ var BackendService = (function () {
             // TODO Stub for Network things!	
             setTimeout(function () {
                 var g = new graphnetwork_1.GeoGraphNetwork();
-                g.add("node1", new graphnetwork_1.CNode(new graphnetwork_1.Coords(49.847544, 12.3184657)));
-                g.add("node2", new graphnetwork_1.CNode(new graphnetwork_1.Coords(49.847544, 12.3185657)));
-                g.add("node3", new graphnetwork_1.CNode(new graphnetwork_1.Coords(49.847544, 12.3186657)));
-                g.add("node4", new graphnetwork_1.CNode(new graphnetwork_1.Coords(49.847544, 12.3187657)));
+                g.add("node1", new graphnetwork_1.CNode(new graphnetwork_1.Coords(52.5062185, 12.8647592)));
+                g.add("node2", new graphnetwork_1.CNode(new graphnetwork_1.Coords(48.7791242, 9.0371341)));
+                g.add("node3", new graphnetwork_1.CNode(new graphnetwork_1.Coords(51.528308, -0.3817701)));
+                g.add("node4", new graphnetwork_1.CNode(new graphnetwork_1.Coords(43.9957508, -72.7008926)));
                 g.connector("node1", ["node2", "node3"], false);
                 g.connector("node4", ["node3"]);
                 observer.next(g);
