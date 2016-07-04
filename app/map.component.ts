@@ -2,7 +2,7 @@ import { Component, OnInit, ReflectiveInjector, Inject } from '@angular/core';
 import { RouteParams } from '@angular/router-deprecated';
 import { MaterialTemplate } from './material';
 
-import { GeoGraphNetwork, COLConnectionInfo, GraphNetworkHealth, Coords, CNode } from './colmap/graph/graphnetwork';
+import { GeoGraphNetwork, COLConnectionInfo, GraphNetworkHealth, Coords, CNode, GraphEdge } from './colmap/graph/graphnetwork';
 import { PerferenceService } from './colmap/state/preferences';
 import { BackendService } from './colmap/network/server';
 
@@ -52,18 +52,29 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 			network.nodeIterator((node : CNode<Coords>, key, n) => {
 				console.log("adding feature");
 				let pos = ol.proj.fromLonLat(node.type.getOl());
-				debugger;
 				let feature = new ol.Feature(new ol.geom.Point(pos));
 				feature.setStyle(new ol.style.Style({
 					image : new ol.style.RegularShape({
 						fill : new ol.style.Fill({color: 'red'}),
-						stroke : new ol.style.Stroke({color: 'black', width: 1}),
+						stroke : new ol.style.Stroke({color: 'black', width: 2}),
 						points: 4,
 						radius: 10,
 						radius2: 0,
 						angle: 0
 					})
 				}));
+				for (let edge of node.connections){
+					let coords = edge.getLineCoords(network);
+					let line = new ol.geom.LineString(new Array(
+							ol.proj.fromLonLat(coords[0].getOl()),
+							ol.proj.fromLonLat(coords[1].getOl())
+						));
+					let edgeFeature = new ol.Feature({
+						geometry : line,
+						name: "line"
+					});
+					this.features.push(edgeFeature);
+				}
 				this.features.push(feature);
 			}, () => {
 				//this.graphLayer.changed();

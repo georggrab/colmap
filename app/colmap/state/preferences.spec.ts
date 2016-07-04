@@ -4,8 +4,7 @@ import {
   describe,
   expect,
   it,
-  inject,
-  injectAsync
+  inject
 } from '@angular/core/testing';
 import { PerferenceService, CStorage, Preference } from './preferences';
 import { provide, Injectable, Provider } from '@angular/core';

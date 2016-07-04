@@ -42,8 +42,18 @@ var GraphNetworkUpdate = (function () {
 }());
 exports.GraphNetworkUpdate = GraphNetworkUpdate;
 var GraphEdge = (function () {
-    function GraphEdge() {
+    function GraphEdge(from, to, bidirectional, meta) {
+        this.from = from;
+        this.to = to;
+        this.bidirectional = bidirectional;
+        this.meta = meta;
     }
+    GraphEdge.prototype.getLineCoords = function (on) {
+        var points = new Array();
+        points.push(on.nodes[this.from].type);
+        points.push(on.nodes[this.to].type);
+        return points;
+    };
     return GraphEdge;
 }());
 exports.GraphEdge = GraphEdge;
@@ -69,10 +79,13 @@ var GraphNetwork = (function () {
         if (this.nodes.hasOwnProperty(node)) {
             for (var _i = 0, to_1 = to; _i < to_1.length; _i++) {
                 var connect = to_1[_i];
-                this.nodes[node].connections.push(connect);
+                var g = new GraphEdge(node, connect, bidirectional, null);
+                this.nodes[node].connections.push(g);
                 if (bidirectional) {
                     if (this.nodes.hasOwnProperty(connect)) {
-                        this.nodes[connect].connections.push(node);
+                        // TODO Minimal spannender Baum?
+                        var g_obsolete = new GraphEdge(connect, node, bidirectional, null);
+                        this.nodes[connect].connections.push(g_obsolete);
                     }
                     else {
                         throw "No such node in Network: " + connect + " (while connecting to: " + node + ")";

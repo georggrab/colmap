@@ -4,8 +4,7 @@ import {
   describe,
   expect,
   it,
-  inject,
-  injectAsync
+  inject
 } from '@angular/core/testing';
 import { provide, Injectable, Provider } from '@angular/core';
 import { GeoGraphNetwork, GraphNetworkUpdate } from '../graph/graphnetwork';

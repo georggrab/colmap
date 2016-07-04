@@ -7,7 +7,7 @@ export class CNode<T>{
 	constructor (public type : T){
 
 	}
-	connections: CNode<T>[] = [];
+	connections: GraphEdge[] = [];
     data: any;
 }
 
@@ -39,15 +39,24 @@ export class GraphNetworkUpdate {
 }
 
 export class GraphEdge {
-	from : string;
-	to : string;
-	bidirectional : boolean;
-	meta : any;
+	constructor(public from : string,
+		public to: string,
+		public bidirectional: boolean,
+		public meta: any){}
+
+	getLineCoords(on : GeoGraphNetwork): Array<Coords>{
+		let points = new Array<Coords>();
+		points.push(
+			on.nodes[this.from].type);
+		points.push(
+			on.nodes[this.to].type);
+		return points;
+	}
 }
 
 
 export class GraphNetwork<T> {
-	protected nodes = {};
+	public nodes = {};
 
 	public nodeIterator(iterator : (node : CNode<T>, key?: string, n? : number) => void, after? : () => void) : void {
 		// replace this with smartass graph traversal function
@@ -66,10 +75,13 @@ export class GraphNetwork<T> {
 	public connector(node : string, to : string[], bidirectional : boolean = true){
 		if (this.nodes.hasOwnProperty(node)){
 			for (let connect of to){
-				this.nodes[node].connections.push(connect);
+				let g: GraphEdge = new GraphEdge(node, connect, bidirectional, null);
+				this.nodes[node].connections.push(g);
 				if (bidirectional){
 					if (this.nodes.hasOwnProperty(connect)){
-						this.nodes[connect].connections.push(node);
+						// TODO Minimal spannender Baum?
+						let g_obsolete : GraphEdge = new GraphEdge(connect, node, bidirectional, null);
+						this.nodes[connect].connections.push(g_obsolete);
 					} else {
 						throw `No such node in Network: ${connect} (while connecting to: ${node})`;
 					}

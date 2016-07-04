@@ -37,8 +37,9 @@ export class BackendService {
 				g.add("node3", new CNode<Coords>(new Coords(51.528308,-0.3817701)));
 				g.add("node4", new CNode<Coords>(new Coords(43.9957508,-72.7008926)));
 
-				g.connector("node1", ["node2", "node3"], false);
+				g.connector("node3", ["node2"], false);
 				g.connector("node4", ["node3"]);
+				g.connector("node3", ["node1"]);
 
 				observer.next(g);
 

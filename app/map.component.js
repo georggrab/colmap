@@ -46,18 +46,27 @@ var MapComponent = (function (_super) {
             network.nodeIterator(function (node, key, n) {
                 console.log("adding feature");
                 var pos = ol.proj.fromLonLat(node.type.getOl());
-                debugger;
                 var feature = new ol.Feature(new ol.geom.Point(pos));
                 feature.setStyle(new ol.style.Style({
                     image: new ol.style.RegularShape({
                         fill: new ol.style.Fill({ color: 'red' }),
-                        stroke: new ol.style.Stroke({ color: 'black', width: 1 }),
+                        stroke: new ol.style.Stroke({ color: 'black', width: 2 }),
                         points: 4,
                         radius: 10,
                         radius2: 0,
                         angle: 0
                     })
                 }));
+                for (var _i = 0, _a = node.connections; _i < _a.length; _i++) {
+                    var edge = _a[_i];
+                    var coords = edge.getLineCoords(network);
+                    var line = new ol.geom.LineString(new Array(ol.proj.fromLonLat(coords[0].getOl()), ol.proj.fromLonLat(coords[1].getOl())));
+                    var edgeFeature = new ol.Feature({
+                        geometry: line,
+                        name: "line"
+                    });
+                    _this.features.push(edgeFeature);
+                }
                 _this.features.push(feature);
             }, function () {
                 //this.graphLayer.changed();
