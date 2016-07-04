@@ -31,10 +31,23 @@ var MapComponent = (function (_super) {
         this.ol = ol;
         /* Things we need for the GraphNetwork */
         this.lastNetworkHealth = null;
-        this.features = new ol.Collection();
+        this.nodeFeatures = new ol.Collection();
+        this.edgeFeatures = new ol.Collection();
         this.graphLayer = new ol.layer.Vector({
             source: new ol.source.Vector({
-                features: this.features
+                features: this.nodeFeatures
+            })
+        });
+        this.edgeLayer = new ol.layer.Vector({
+            source: new ol.source.Vector({
+                features: this.edgeFeatures
+            }),
+            style: new ol.style.Style({
+                stroke: new ol.style.Stroke({
+                    color: 'rgba(10,50,200,0.3)',
+                    width: 2,
+                    lineDash: [5, 5]
+                }),
             })
         });
     }
@@ -65,9 +78,9 @@ var MapComponent = (function (_super) {
                         geometry: line,
                         name: "line"
                     });
-                    _this.features.push(edgeFeature);
+                    _this.edgeFeatures.push(edgeFeature);
                 }
-                _this.features.push(feature);
+                _this.nodeFeatures.push(feature);
             }, function () {
                 //this.graphLayer.changed();
             });
@@ -174,7 +187,7 @@ var MapComponent = (function (_super) {
             target: 'mmap',
             layers: [
                 this.provider(this.preferences.getPreferences().ChosenMap, false),
-                this.graphLayer
+                this.graphLayer, this.edgeLayer
             ],
             view: new this.ol.View({
                 center: this.ol.proj.fromLonLat([37.41, 8.82]),

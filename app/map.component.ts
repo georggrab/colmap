@@ -32,10 +32,23 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 
 	/* Things we need for the GraphNetwork */
 	lastNetworkHealth : GraphNetworkHealth = null;
-	features : any = new ol.Collection();
+	nodeFeatures : any = new ol.Collection();
+	edgeFeatures : any = new ol.Collection();
 	graphLayer : any = new ol.layer.Vector({
 		source : new ol.source.Vector({
-			features: this.features
+			features: this.nodeFeatures
+		})
+	});
+	edgeLayer : any = new ol.layer.Vector({
+		source: new ol.source.Vector({
+			features: this.edgeFeatures
+		}),
+		style: new ol.style.Style({
+			stroke: new ol.style.Stroke({
+				color:'rgba(10,50,200,0.3)', 
+				width:2,
+				lineDash : [5,5]
+			}),
 		})
 	});
 
@@ -73,9 +86,9 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 						geometry : line,
 						name: "line"
 					});
-					this.features.push(edgeFeature);
+					this.edgeFeatures.push(edgeFeature);
 				}
-				this.features.push(feature);
+				this.nodeFeatures.push(feature);
 			}, () => {
 				//this.graphLayer.changed();
 			});
@@ -193,7 +206,7 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 			target: 'mmap',
 			layers: [
 				this.provider(this.preferences.getPreferences().ChosenMap, false),
-				this.graphLayer
+				this.graphLayer, this.edgeLayer
 			],
 			view: new this.ol.View({
 				center: this.ol.proj.fromLonLat([37.41, 8.82]),
