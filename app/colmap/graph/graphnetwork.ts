@@ -34,6 +34,7 @@ export class GraphNetworkHealth {
 export class GraphNetworkUpdate {
 	nodesUpdated : number;
 	additions : GraphEdge[];
+	additiveNodes : CNode<Coords>[];
 	deletions : GraphEdge[];
 	highlight : GraphEdge[];
 }

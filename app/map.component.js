@@ -51,41 +51,53 @@ var MapComponent = (function (_super) {
             })
         });
     }
+    MapComponent.prototype.displayEdges = function (node, network, pushOnto) {
+        for (var _i = 0, _a = node.connections; _i < _a.length; _i++) {
+            var edge = _a[_i];
+            var coords = edge.getLineCoords(network);
+            var line = new ol.geom.LineString(new Array(ol.proj.fromLonLat(coords[0].getOl()), ol.proj.fromLonLat(coords[1].getOl())));
+            var edgeFeature = new ol.Feature({
+                geometry: line,
+                name: "line"
+            });
+            pushOnto.push(edgeFeature);
+        }
+    };
+    MapComponent.prototype.displayNode = function (node, pushOnto) {
+        var lastInsertion = ol.proj.fromLonLat(node.type.getOl());
+        var feature = new ol.Feature(new ol.geom.Point(lastInsertion));
+        feature.setStyle(new ol.style.Style({
+            image: new ol.style.RegularShape({
+                fill: new ol.style.Fill({ color: 'red' }),
+                stroke: new ol.style.Stroke({ color: 'black', width: 2 }),
+                points: 4,
+                radius: 10,
+                radius2: 0,
+                angle: 0
+            })
+        }));
+        pushOnto.push(feature);
+        return lastInsertion;
+    };
+    MapComponent.prototype.displayNetworkUpdate = function (update) {
+    };
+    // TODO Observables haben hier nichts zu suchen
     MapComponent.prototype.buildNetworkInitial = function (graphNetwork) {
         var _this = this;
         this.notification("buildNetworkInitial()..");
-        // Step 1: Place Nodes on Map
+        // Wait for Observable to yield network
         graphNetwork.forEach(function (network) {
-            network.nodeIterator(function (node, key, n) {
-                console.log("adding feature");
-                var pos = ol.proj.fromLonLat(node.type.getOl());
-                var feature = new ol.Feature(new ol.geom.Point(pos));
-                feature.setStyle(new ol.style.Style({
-                    image: new ol.style.RegularShape({
-                        fill: new ol.style.Fill({ color: 'red' }),
-                        stroke: new ol.style.Stroke({ color: 'black', width: 2 }),
-                        points: 4,
-                        radius: 10,
-                        radius2: 0,
-                        angle: 0
-                    })
-                }));
-                for (var _i = 0, _a = node.connections; _i < _a.length; _i++) {
-                    var edge = _a[_i];
-                    var coords = edge.getLineCoords(network);
-                    var line = new ol.geom.LineString(new Array(ol.proj.fromLonLat(coords[0].getOl()), ol.proj.fromLonLat(coords[1].getOl())));
-                    var edgeFeature = new ol.Feature({
-                        geometry: line,
-                        name: "line"
-                    });
-                    _this.edgeFeatures.push(edgeFeature);
-                }
-                _this.nodeFeatures.push(feature);
+            var lastInsertion;
+            // Iterate nodes of network and append
+            network.nodeIterator(function (node, _, __) {
+                lastInsertion = _this.displayNode(node, _this.nodeFeatures);
+                _this.displayEdges(node, network, _this.nodeFeatures);
             }, function () {
-                //this.graphLayer.changed();
+                if (lastInsertion !== undefined) {
+                    _this.map.getView().setCenter(lastInsertion);
+                }
             });
         });
-        // Step 2: Connect Nodes
     };
     MapComponent.prototype.connect = function () {
         var _this = this;
@@ -139,6 +151,7 @@ var MapComponent = (function (_super) {
     };
     MapComponent.prototype.provider = function (olSource, apply) {
         if (apply === void 0) { apply = true; }
+        console.log("providerchange fired");
         var layer;
         switch (olSource) {
             case 'ol.source.Stamen':
@@ -161,8 +174,9 @@ var MapComponent = (function (_super) {
                 break;
         }
         if (apply) {
-            this.map.getLayers().clear();
-            this.map.addLayer(layer);
+            console.log("apply fired");
+            this.map.getLayers().removeAt(0);
+            this.map.getLayers().insertAt(0, layer);
         }
         this.preferences.setPreference("ChosenMap", olSource);
         return layer;
@@ -191,9 +205,10 @@ var MapComponent = (function (_super) {
             ],
             view: new this.ol.View({
                 center: this.ol.proj.fromLonLat([37.41, 8.82]),
-                zoom: 4
+                zoom: 3,
+                minZoom: 3, maxZoom: 20
             }),
-            controls: new this.ol.Collection()
+            controls: new this.ol.Collection(),
         });
     };
     MapComponent = __decorate([

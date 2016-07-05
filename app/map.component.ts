@@ -2,7 +2,9 @@ import { Component, OnInit, ReflectiveInjector, Inject } from '@angular/core';
 import { RouteParams } from '@angular/router-deprecated';
 import { MaterialTemplate } from './material';
 
-import { GeoGraphNetwork, COLConnectionInfo, GraphNetworkHealth, Coords, CNode, GraphEdge } from './colmap/graph/graphnetwork';
+import { GeoGraphNetwork, COLConnectionInfo, 
+	GraphNetworkHealth, Coords, CNode, GraphEdge,
+	GraphNetworkUpdate } from './colmap/graph/graphnetwork';
 import { PerferenceService } from './colmap/state/preferences';
 import { BackendService } from './colmap/network/server';
 
@@ -58,43 +60,63 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 		super();
 	}
 
+	displayEdges(node : CNode<Coords>, network : GeoGraphNetwork, pushOnto){
+		for (let edge of node.connections){
+			let coords = edge.getLineCoords(network);
+			let line = new ol.geom.LineString(new Array(
+					ol.proj.fromLonLat(coords[0].getOl()),
+					ol.proj.fromLonLat(coords[1].getOl())
+				));
+			let edgeFeature = new ol.Feature({
+				geometry : line,
+				name: "line"
+			});
+			pushOnto.push(edgeFeature);
+		}
+	}
+
+	displayNode(node : CNode<Coords>, pushOnto) : any {
+		let lastInsertion = ol.proj.fromLonLat(node.type.getOl());
+		let feature = new ol.Feature(new ol.geom.Point(lastInsertion));
+
+		feature.setStyle(new ol.style.Style({
+			image : new ol.style.RegularShape({
+				fill : new ol.style.Fill({color: 'red'}),
+				stroke : new ol.style.Stroke({color: 'black', width: 2}),
+				points: 4,
+				radius: 10,
+				radius2: 0,
+				angle: 0
+			})
+		}));
+
+		pushOnto.push(feature);
+		return lastInsertion;
+	}
+
+	displayNetworkUpdate(update : GraphNetworkUpdate){
+
+	}
+
+	// TODO Observables haben hier nichts zu suchen
 	buildNetworkInitial(graphNetwork : Observable<GeoGraphNetwork>){
 		this.notification("buildNetworkInitial()..");
-		// Step 1: Place Nodes on Map
+
+		// Wait for Observable to yield network
 		graphNetwork.forEach(network => {
-			network.nodeIterator((node : CNode<Coords>, key, n) => {
-				console.log("adding feature");
-				let pos = ol.proj.fromLonLat(node.type.getOl());
-				let feature = new ol.Feature(new ol.geom.Point(pos));
-				feature.setStyle(new ol.style.Style({
-					image : new ol.style.RegularShape({
-						fill : new ol.style.Fill({color: 'red'}),
-						stroke : new ol.style.Stroke({color: 'black', width: 2}),
-						points: 4,
-						radius: 10,
-						radius2: 0,
-						angle: 0
-					})
-				}));
-				for (let edge of node.connections){
-					let coords = edge.getLineCoords(network);
-					let line = new ol.geom.LineString(new Array(
-							ol.proj.fromLonLat(coords[0].getOl()),
-							ol.proj.fromLonLat(coords[1].getOl())
-						));
-					let edgeFeature = new ol.Feature({
-						geometry : line,
-						name: "line"
-					});
-					this.edgeFeatures.push(edgeFeature);
-				}
-				this.nodeFeatures.push(feature);
+
+			let lastInsertion;
+
+			// Iterate nodes of network and append
+			network.nodeIterator((node : CNode<Coords>, _, __) => {
+				lastInsertion = this.displayNode(node, this.nodeFeatures);
+				this.displayEdges(node, network, this.nodeFeatures);
 			}, () => {
-				//this.graphLayer.changed();
+				if (lastInsertion !== undefined){
+					this.map.getView().setCenter(lastInsertion);
+				}
 			});
 		});
-
-		// Step 2: Connect Nodes
 	}
 
 	connect(){
@@ -156,6 +178,7 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 	}
 
 	provider(olSource : string, apply : boolean = true) : string {
+		console.log("providerchange fired");
 		var layer: any;
 		switch (olSource) {
 			case 'ol.source.Stamen':
@@ -176,8 +199,9 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 				}); break;
 		}
 		if (apply) {
-			this.map.getLayers().clear();
-			this.map.addLayer(layer);
+			console.log("apply fired");
+			this.map.getLayers().removeAt(0);
+			this.map.getLayers().insertAt(0, layer);
 		}
 		this.preferences.setPreference("ChosenMap", olSource)
 		return layer;
@@ -210,9 +234,10 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 			],
 			view: new this.ol.View({
 				center: this.ol.proj.fromLonLat([37.41, 8.82]),
-				zoom: 4
+				zoom: 3,
+				minZoom: 3, maxZoom: 20
 			}),
-			controls: new this.ol.Collection()
+			controls: new this.ol.Collection(),
 		});
 	}
 }
