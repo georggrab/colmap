@@ -80,6 +80,20 @@ var MapComponent = (function (_super) {
         return lastInsertion;
     };
     MapComponent.prototype.displayNetworkUpdate = function (update) {
+        // display new Nodes
+        for (var _i = 0, _a = update.additiveNodes; _i < _a.length; _i++) {
+            var node = _a[_i];
+            this.displayNode(node, this.nodeFeatures);
+        }
+        for (var _b = 0, _c = update.additions; _b < _c.length; _b++) {
+            var addedEdge = _c[_b];
+        }
+        for (var _d = 0, _e = update.deletions; _d < _e.length; _d++) {
+            var removedEdge = _e[_d];
+        }
+        for (var _f = 0, _g = update.highlight; _f < _g.length; _f++) {
+            var highlightEdge = _g[_f];
+        }
     };
     // TODO Observables haben hier nichts zu suchen
     MapComponent.prototype.buildNetworkInitial = function (graphNetwork) {
@@ -192,6 +206,13 @@ var MapComponent = (function (_super) {
         this.snackbarContainer = document.querySelector('#map-snackbar');
         this.connect();
     };
+    MapComponent.prototype.addClickHandler = function (map) {
+        map.on('singleclick', function (evt) {
+            var feature = map.forEachFeatureAtPixel(evt.pixel, function (feature, layer) {
+                console.log("Clicked on Feature near " + evt.coordinate);
+            });
+        });
+    };
     MapComponent.prototype.ngOnInit = function () {
         var gotId = this.routeParams.get('mapid');
         this.bw = window.innerWidth;
@@ -210,6 +231,7 @@ var MapComponent = (function (_super) {
             }),
             controls: new this.ol.Collection(),
         });
+        this.addClickHandler(this.map);
     };
     MapComponent = __decorate([
         core_1.Component({

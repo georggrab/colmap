@@ -95,7 +95,20 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 	}
 
 	displayNetworkUpdate(update : GraphNetworkUpdate){
+		// display new Nodes
+		for (let node of update.additiveNodes){
+			this.displayNode(node, this.nodeFeatures);
+		}
 
+		for (let addedEdge of update.additions){
+
+		}
+		for (let removedEdge of update.deletions){
+
+		}
+		for (let highlightEdge of update.highlight){
+
+		}
 	}
 
 	// TODO Observables haben hier nichts zu suchen
@@ -220,6 +233,14 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 		this.connect();
 	}
 
+	addClickHandler(map : any){
+		map.on('singleclick', (evt) => {
+			let feature = map.forEachFeatureAtPixel(evt.pixel, (feature, layer) => {
+				console.log(`Clicked on Feature near ${evt.coordinate}`);
+			})
+		});
+	}
+
 	ngOnInit(){
 		let gotId = this.routeParams.get('mapid');
 		this.bw = window.innerWidth;
@@ -239,5 +260,7 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 			}),
 			controls: new this.ol.Collection(),
 		});
+
+		this.addClickHandler(this.map);
 	}
 }

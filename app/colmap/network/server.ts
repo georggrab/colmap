@@ -32,14 +32,14 @@ export class BackendService {
 			setTimeout(() => {
 				let g = new GeoGraphNetwork();
 
-				g.add("node1", new CNode<Coords>(new Coords(52.5062185,12.8647592)));
-				g.add("node2", new CNode<Coords>(new Coords(48.7791242,9.0371341)));
-				g.add("node3", new CNode<Coords>(new Coords(51.528308,-0.3817701)));
-				g.add("node4", new CNode<Coords>(new Coords(43.9957508,-72.7008926)));
+				g.add("NY", new CNode<Coords>(new Coords(52.5062185,12.8647592)));
+				g.add("Berlin", new CNode<Coords>(new Coords(48.7791242,9.0371341)));
+				g.add("London", new CNode<Coords>(new Coords(51.528308,-0.3817701)));
+				g.add("Stuttgart", new CNode<Coords>(new Coords(43.9957508,-72.7008926)));
 
-				g.connector("node3", ["node2"], false);
-				g.connector("node4", ["node3"]);
-				g.connector("node3", ["node1"]);
+				g.connector("London", ["Berlin"], false);
+				g.connector("NY", ["London"]);
+				g.connector("London", ["Stuttgart"]);
 
 				observer.next(g);
 

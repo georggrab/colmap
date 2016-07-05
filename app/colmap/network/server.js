@@ -36,13 +36,13 @@ var BackendService = (function () {
             // TODO Stub for Network things!	
             setTimeout(function () {
                 var g = new graphnetwork_1.GeoGraphNetwork();
-                g.add("node1", new graphnetwork_1.CNode(new graphnetwork_1.Coords(52.5062185, 12.8647592)));
-                g.add("node2", new graphnetwork_1.CNode(new graphnetwork_1.Coords(48.7791242, 9.0371341)));
-                g.add("node3", new graphnetwork_1.CNode(new graphnetwork_1.Coords(51.528308, -0.3817701)));
-                g.add("node4", new graphnetwork_1.CNode(new graphnetwork_1.Coords(43.9957508, -72.7008926)));
-                g.connector("node3", ["node2"], false);
-                g.connector("node4", ["node3"]);
-                g.connector("node3", ["node1"]);
+                g.add("NY", new graphnetwork_1.CNode(new graphnetwork_1.Coords(52.5062185, 12.8647592)));
+                g.add("Berlin", new graphnetwork_1.CNode(new graphnetwork_1.Coords(48.7791242, 9.0371341)));
+                g.add("London", new graphnetwork_1.CNode(new graphnetwork_1.Coords(51.528308, -0.3817701)));
+                g.add("Stuttgart", new graphnetwork_1.CNode(new graphnetwork_1.Coords(43.9957508, -72.7008926)));
+                g.connector("London", ["Berlin"], false);
+                g.connector("NY", ["London"]);
+                g.connector("London", ["Stuttgart"]);
                 observer.next(g);
             }, 2000);
         });
