@@ -17,8 +17,11 @@ var Coords = (function () {
         this.longitude = longitude;
         this.latitude = latitude;
     }
-    Coords.prototype.getOl = function () {
-        return [this.latitude, this.longitude];
+    Coords.prototype.getOl = function (mapFunc) {
+        var things = [this.latitude, this.longitude];
+        if (mapFunc !== undefined)
+            things = mapFunc(things);
+        return things;
     };
     return Coords;
 }());
@@ -48,11 +51,17 @@ var GraphEdge = (function () {
         this.bidirectional = bidirectional;
         this.meta = meta;
     }
-    GraphEdge.prototype.getLineCoords = function (on) {
-        var points = new Array();
-        points.push(on.nodes[this.from].type);
-        points.push(on.nodes[this.to].type);
-        return points;
+    GraphEdge.prototype.getLineCoords = function (on, mapFunc) {
+        var coords = [
+            on.nodes[this.from].type.getOl(),
+            on.nodes[this.to].type.getOl()
+        ];
+        if (mapFunc !== undefined) {
+            for (var coord in coords) {
+                coords[coord] = mapFunc(coords[coord]);
+            }
+        }
+        return coords;
     };
     return GraphEdge;
 }());

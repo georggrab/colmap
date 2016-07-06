@@ -4353,7 +4353,6 @@ declare namespace ol {
         }
 
         class RegularShape {
-            constructor(ShapeOpts?:any);
         }
 
         class Stroke {

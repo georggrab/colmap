@@ -36,10 +36,10 @@ var BackendService = (function () {
             // TODO Stub for Network things!	
             setTimeout(function () {
                 var g = new graphnetwork_1.GeoGraphNetwork();
-                g.add("NY", new graphnetwork_1.CNode(new graphnetwork_1.Coords(52.5062185, 12.8647592)));
-                g.add("Berlin", new graphnetwork_1.CNode(new graphnetwork_1.Coords(48.7791242, 9.0371341)));
+                g.add("Berlin", new graphnetwork_1.CNode(new graphnetwork_1.Coords(52.5062185, 12.8647592)));
+                g.add("Stuttgart", new graphnetwork_1.CNode(new graphnetwork_1.Coords(48.7791242, 9.0371341)));
                 g.add("London", new graphnetwork_1.CNode(new graphnetwork_1.Coords(51.528308, -0.3817701)));
-                g.add("Stuttgart", new graphnetwork_1.CNode(new graphnetwork_1.Coords(43.9957508, -72.7008926)));
+                g.add("NY", new graphnetwork_1.CNode(new graphnetwork_1.Coords(43.9957508, -72.7008926)));
                 g.connector("London", ["Berlin"], false);
                 g.connector("NY", ["London"]);
                 g.connector("London", ["Stuttgart"]);
@@ -50,19 +50,18 @@ var BackendService = (function () {
     BackendService.prototype.retrieveDelta = function (since) {
         return {
             nodesUpdated: 3,
+            additiveNodes: [{ "SanFrancisco": new graphnetwork_1.CNode(new graphnetwork_1.Coords(37.543589, -123.1674184)) }],
             additions: [
-                {
-                    from: "node1", to: "node4", bidirectional: true
-                }
+                new graphnetwork_1.GraphEdge("NY", "SanFrancisco", true, null)
             ],
             deletions: [
                 {
-                    from: "node1", to: "node2"
+                    from: "London", to: "Berlin"
                 }
             ],
             highlight: [
                 {
-                    from: "node4", to: "node3"
+                    from: "London", to: "Stuttgart"
                 }
             ]
         };

@@ -10,9 +10,7 @@ import { BackendService } from './colmap/network/server';
 
 import { Observable } from 'rxjs/Observable';
 
-declare var ol : any;
-declare var document: any;
-declare var navigator: any;
+import * as Ol from 'openlayers';
 
 @Component({
 	selector: 'map',
@@ -28,25 +26,27 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 	snackbarContainer: any;
 
 	/* Things we need for OpenLayers */
-	ol: any = ol;
 	bw: number; bh: number;
 	map: any;
 
 	/* Things we need for the GraphNetwork */
+	//TODO is a ref to Graphnetwork really neccessary??
+	network : GeoGraphNetwork;
+
 	lastNetworkHealth : GraphNetworkHealth = null;
-	nodeFeatures : any = new ol.Collection();
-	edgeFeatures : any = new ol.Collection();
-	graphLayer : any = new ol.layer.Vector({
-		source : new ol.source.Vector({
-			features: this.nodeFeatures
+	nodeFeatures = new Ol.Collection<Ol.Feature>([]);
+	edgeFeatures = new Ol.Collection<Ol.Feature>([]);
+	graphLayer = new Ol.layer.Vector({
+		source : new Ol.source.Vector({
+			features : this.nodeFeatures
 		})
 	});
-	edgeLayer : any = new ol.layer.Vector({
-		source: new ol.source.Vector({
+	edgeLayer = new Ol.layer.Vector({
+		source: new Ol.source.Vector({
 			features: this.edgeFeatures
 		}),
-		style: new ol.style.Style({
-			stroke: new ol.style.Stroke({
+		style: new Ol.style.Style({
+			stroke: new Ol.style.Stroke({
 				color:'rgba(10,50,200,0.3)', 
 				width:2,
 				lineDash : [5,5]
@@ -60,29 +60,34 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 		super();
 	}
 
+	displayEdgeRaw(edge : GraphEdge, network: GeoGraphNetwork, pushOnto){
+		let coords = edge.getLineCoords(network, Ol.proj.fromLonLat);
+		let line = new Ol.geom.LineString(coords);
+
+		let edgeFeature = new Ol.Feature({
+			geometry : line,
+			name: "line"
+		});
+		pushOnto.push(edgeFeature);
+	}
+
 	displayEdges(node : CNode<Coords>, network : GeoGraphNetwork, pushOnto){
 		for (let edge of node.connections){
-			let coords = edge.getLineCoords(network);
-			let line = new ol.geom.LineString(new Array(
-					ol.proj.fromLonLat(coords[0].getOl()),
-					ol.proj.fromLonLat(coords[1].getOl())
-				));
-			let edgeFeature = new ol.Feature({
-				geometry : line,
-				name: "line"
-			});
-			pushOnto.push(edgeFeature);
+			this.displayEdgeRaw(edge, network, pushOnto);
 		}
 	}
 
 	displayNode(node : CNode<Coords>, pushOnto) : any {
-		let lastInsertion = ol.proj.fromLonLat(node.type.getOl());
-		let feature = new ol.Feature(new ol.geom.Point(lastInsertion));
-
-		feature.setStyle(new ol.style.Style({
-			image : new ol.style.RegularShape({
-				fill : new ol.style.Fill({color: 'red'}),
-				stroke : new ol.style.Stroke({color: 'black', width: 2}),
+		let lastInsertion = node.type.getOl(Ol.proj.fromLonLat);
+		let feature = new Ol.Feature(new Ol.geom.Point(lastInsertion));
+		feature.setStyle(new Ol.style.Style({
+			image : new Ol.style.RegularShape({
+				fill : new Ol.style.Fill({
+					color: 'red'
+				}),
+				stroke : new Ol.style.Stroke({
+					color: 'black', width: 2
+				}),
 				points: 4,
 				radius: 10,
 				radius2: 0,
@@ -94,17 +99,21 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 		return lastInsertion;
 	}
 
-	displayNetworkUpdate(update : GraphNetworkUpdate){
+	displayNetworkUpdate(update : GraphNetworkUpdate, ofOriginal : GeoGraphNetwork){
 		// display new Nodes
-		for (let node of update.additiveNodes){
-			this.displayNode(node, this.nodeFeatures);
+		for (let addition of update.additiveNodes){
+			for (let nodeName in addition){
+				ofOriginal.add(nodeName, addition[nodeName]);
+				this.displayNode(addition[nodeName], this.nodeFeatures);
+			}
 		}
 
 		for (let addedEdge of update.additions){
+			this.displayEdgeRaw(addedEdge, ofOriginal, this.nodeFeatures);
 
 		}
 		for (let removedEdge of update.deletions){
-
+			// stub
 		}
 		for (let highlightEdge of update.highlight){
 
@@ -117,7 +126,7 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 
 		// Wait for Observable to yield network
 		graphNetwork.forEach(network => {
-
+			this.network = network;
 			let lastInsertion;
 
 			// Iterate nodes of network and append
@@ -164,9 +173,9 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 
 
 	mapAddCoords(position){
-		var pos = ol.proj.fromLonLat([position.coords.longitude, position.coords.latitude]);
+		var pos = Ol.proj.fromLonLat([position.coords.longitude, position.coords.latitude], null);
 		this.notification('LON='+position.coords.longitude);
-		var marker = new ol.Overlay({
+		var marker = new Ol.Overlay({
 			position: pos
 		  , positioning: 'center-center'
 			, element: document.getElementById('marker-own-location')		
@@ -177,8 +186,10 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 
 	// TODO remove debug function
 	btnDebug(){
-		document.map = this;
+		document["map"] = this;
 		this.notification('Exposed Component to: document.map');
+		let delta = this.backendService.retrieveDelta(0);
+		this.displayNetworkUpdate(delta, this.network);
 	}
 
 	btnAddLocation(){
@@ -195,16 +206,18 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 		var layer: any;
 		switch (olSource) {
 			case 'ol.source.Stamen':
-				layer = new this.ol.layer.Tile({
-					source: new this.ol.source.Stamen({ layer: 'toner' })
+				layer = new Ol.layer.Tile({
+					source: new Ol.source.Stamen({
+						layer: 'toner'
+					})
 				}); break;
 			case 'ol.source.OSM':
-				layer = new this.ol.layer.Tile({
-					source: new this.ol.source.OSM({})
+				layer = new Ol.layer.Tile({
+					source: new Ol.source.OSM()
 				}); break;
 			case 'ol.source.BingMaps':
-				layer = new this.ol.layer.Tile({
-					source: new this.ol.source.BingMaps({
+				layer = new Ol.layer.Tile({
+					source: new Ol.source.BingMaps({
 						key: 'AnOpGK0vuwH0a2tPUKih1RPmu6REVRH7SqP8jhSNFKeDORF7cCXGkhxY1wzbF7ul'
 						// TODO leverage usage of this
 					  , imagerySet: 'AerialWithLabels'
@@ -241,24 +254,30 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 		});
 	}
 
+	addAnimation(source){
+		source.on('addfeature', () =>{})
+	}
+
 	ngOnInit(){
 		let gotId = this.routeParams.get('mapid');
 		this.bw = window.innerWidth;
 		this.bh = window.innerHeight;
 		this.mapid = gotId;
 
-		this.map = new this.ol.Map({
+
+		this.map = new Ol.Map({
 			target: 'mmap',
 			layers: [
 				this.provider(this.preferences.getPreferences().ChosenMap, false),
 				this.graphLayer, this.edgeLayer
 			],
-			view: new this.ol.View({
-				center: this.ol.proj.fromLonLat([37.41, 8.82]),
+
+			view: new Ol.View({
+				center: Ol.proj.fromLonLat([37.41, 8.82], undefined),
 				zoom: 3,
 				minZoom: 3, maxZoom: 20
 			}),
-			controls: new this.ol.Collection(),
+			controls: new Ol.Collection([]),
 		});
 
 		this.addClickHandler(this.map);

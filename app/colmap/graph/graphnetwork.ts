@@ -1,3 +1,5 @@
+import {Coordinate} from 'openlayers';
+
 interface ITransferOL {
 	transfer(): Array<Object>;
 	delta()   : Array<Object>;
@@ -12,8 +14,10 @@ export class CNode<T>{
 }
 
 export class Coords {
-	getOl() : Array<number> {
-		return [this.latitude, this.longitude];
+	getOl(mapFunc?:any) : Coordinate {
+		let things = [this.latitude, this.longitude];
+		if (mapFunc !== undefined) things = mapFunc(things);
+		return things;
 	}
 	constructor(public longitude : number, public latitude : number){
 	}
@@ -34,7 +38,7 @@ export class GraphNetworkHealth {
 export class GraphNetworkUpdate {
 	nodesUpdated : number;
 	additions : GraphEdge[];
-	additiveNodes : CNode<Coords>[];
+	additiveNodes : { [key:string]:CNode<Coords> }[];
 	deletions : GraphEdge[];
 	highlight : GraphEdge[];
 }
@@ -45,13 +49,17 @@ export class GraphEdge {
 		public bidirectional: boolean,
 		public meta: any){}
 
-	getLineCoords(on : GeoGraphNetwork): Array<Coords>{
-		let points = new Array<Coords>();
-		points.push(
-			on.nodes[this.from].type);
-		points.push(
-			on.nodes[this.to].type);
-		return points;
+	getLineCoords(on : GeoGraphNetwork, mapFunc?): Coordinate[]{
+		let coords : Coordinate[] = [
+			on.nodes[this.from].type.getOl(), 
+			on.nodes[this.to].type.getOl()
+		]
+		if (mapFunc !== undefined) {
+			for (let coord in coords){
+				coords[coord] = mapFunc(coords[coord]);
+			}
+		}
+		return coords;
 	}
 }
 

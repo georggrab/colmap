@@ -18,6 +18,7 @@ var router_deprecated_1 = require('@angular/router-deprecated');
 var material_1 = require('./material');
 var preferences_1 = require('./colmap/state/preferences');
 var server_1 = require('./colmap/network/server');
+var Ol = require('openlayers');
 var MapComponent = (function (_super) {
     __extends(MapComponent, _super);
     function MapComponent(routeParams, preferences, backendService) {
@@ -27,23 +28,20 @@ var MapComponent = (function (_super) {
         this.backendService = backendService;
         this.connectedUsers = 0;
         this.connectedServices = 0;
-        /* Things we need for OpenLayers */
-        this.ol = ol;
-        /* Things we need for the GraphNetwork */
         this.lastNetworkHealth = null;
-        this.nodeFeatures = new ol.Collection();
-        this.edgeFeatures = new ol.Collection();
-        this.graphLayer = new ol.layer.Vector({
-            source: new ol.source.Vector({
+        this.nodeFeatures = new Ol.Collection([]);
+        this.edgeFeatures = new Ol.Collection([]);
+        this.graphLayer = new Ol.layer.Vector({
+            source: new Ol.source.Vector({
                 features: this.nodeFeatures
             })
         });
-        this.edgeLayer = new ol.layer.Vector({
-            source: new ol.source.Vector({
+        this.edgeLayer = new Ol.layer.Vector({
+            source: new Ol.source.Vector({
                 features: this.edgeFeatures
             }),
-            style: new ol.style.Style({
-                stroke: new ol.style.Stroke({
+            style: new Ol.style.Style({
+                stroke: new Ol.style.Stroke({
                     color: 'rgba(10,50,200,0.3)',
                     width: 2,
                     lineDash: [5, 5]
@@ -51,25 +49,32 @@ var MapComponent = (function (_super) {
             })
         });
     }
+    MapComponent.prototype.displayEdgeRaw = function (edge, network, pushOnto) {
+        var coords = edge.getLineCoords(network, Ol.proj.fromLonLat);
+        var line = new Ol.geom.LineString(coords);
+        var edgeFeature = new Ol.Feature({
+            geometry: line,
+            name: "line"
+        });
+        pushOnto.push(edgeFeature);
+    };
     MapComponent.prototype.displayEdges = function (node, network, pushOnto) {
         for (var _i = 0, _a = node.connections; _i < _a.length; _i++) {
             var edge = _a[_i];
-            var coords = edge.getLineCoords(network);
-            var line = new ol.geom.LineString(new Array(ol.proj.fromLonLat(coords[0].getOl()), ol.proj.fromLonLat(coords[1].getOl())));
-            var edgeFeature = new ol.Feature({
-                geometry: line,
-                name: "line"
-            });
-            pushOnto.push(edgeFeature);
+            this.displayEdgeRaw(edge, network, pushOnto);
         }
     };
     MapComponent.prototype.displayNode = function (node, pushOnto) {
-        var lastInsertion = ol.proj.fromLonLat(node.type.getOl());
-        var feature = new ol.Feature(new ol.geom.Point(lastInsertion));
-        feature.setStyle(new ol.style.Style({
-            image: new ol.style.RegularShape({
-                fill: new ol.style.Fill({ color: 'red' }),
-                stroke: new ol.style.Stroke({ color: 'black', width: 2 }),
+        var lastInsertion = node.type.getOl(Ol.proj.fromLonLat);
+        var feature = new Ol.Feature(new Ol.geom.Point(lastInsertion));
+        feature.setStyle(new Ol.style.Style({
+            image: new Ol.style.RegularShape({
+                fill: new Ol.style.Fill({
+                    color: 'red'
+                }),
+                stroke: new Ol.style.Stroke({
+                    color: 'black', width: 2
+                }),
                 points: 4,
                 radius: 10,
                 radius2: 0,
@@ -79,14 +84,18 @@ var MapComponent = (function (_super) {
         pushOnto.push(feature);
         return lastInsertion;
     };
-    MapComponent.prototype.displayNetworkUpdate = function (update) {
+    MapComponent.prototype.displayNetworkUpdate = function (update, ofOriginal) {
         // display new Nodes
         for (var _i = 0, _a = update.additiveNodes; _i < _a.length; _i++) {
-            var node = _a[_i];
-            this.displayNode(node, this.nodeFeatures);
+            var addition = _a[_i];
+            for (var nodeName in addition) {
+                ofOriginal.add(nodeName, addition[nodeName]);
+                this.displayNode(addition[nodeName], this.nodeFeatures);
+            }
         }
         for (var _b = 0, _c = update.additions; _b < _c.length; _b++) {
             var addedEdge = _c[_b];
+            this.displayEdgeRaw(addedEdge, ofOriginal, this.nodeFeatures);
         }
         for (var _d = 0, _e = update.deletions; _d < _e.length; _d++) {
             var removedEdge = _e[_d];
@@ -101,6 +110,7 @@ var MapComponent = (function (_super) {
         this.notification("buildNetworkInitial()..");
         // Wait for Observable to yield network
         graphNetwork.forEach(function (network) {
+            _this.network = network;
             var lastInsertion;
             // Iterate nodes of network and append
             network.nodeIterator(function (node, _, __) {
@@ -141,9 +151,9 @@ var MapComponent = (function (_super) {
         });
     };
     MapComponent.prototype.mapAddCoords = function (position) {
-        var pos = ol.proj.fromLonLat([position.coords.longitude, position.coords.latitude]);
+        var pos = Ol.proj.fromLonLat([position.coords.longitude, position.coords.latitude], null);
         this.notification('LON=' + position.coords.longitude);
-        var marker = new ol.Overlay({
+        var marker = new Ol.Overlay({
             position: pos,
             positioning: 'center-center',
             element: document.getElementById('marker-own-location'),
@@ -153,8 +163,10 @@ var MapComponent = (function (_super) {
     };
     // TODO remove debug function
     MapComponent.prototype.btnDebug = function () {
-        document.map = this;
+        document["map"] = this;
         this.notification('Exposed Component to: document.map');
+        var delta = this.backendService.retrieveDelta(0);
+        this.displayNetworkUpdate(delta, this.network);
     };
     MapComponent.prototype.btnAddLocation = function () {
         if (navigator.geolocation) {
@@ -169,18 +181,20 @@ var MapComponent = (function (_super) {
         var layer;
         switch (olSource) {
             case 'ol.source.Stamen':
-                layer = new this.ol.layer.Tile({
-                    source: new this.ol.source.Stamen({ layer: 'toner' })
+                layer = new Ol.layer.Tile({
+                    source: new Ol.source.Stamen({
+                        layer: 'toner'
+                    })
                 });
                 break;
             case 'ol.source.OSM':
-                layer = new this.ol.layer.Tile({
-                    source: new this.ol.source.OSM({})
+                layer = new Ol.layer.Tile({
+                    source: new Ol.source.OSM()
                 });
                 break;
             case 'ol.source.BingMaps':
-                layer = new this.ol.layer.Tile({
-                    source: new this.ol.source.BingMaps({
+                layer = new Ol.layer.Tile({
+                    source: new Ol.source.BingMaps({
                         key: 'AnOpGK0vuwH0a2tPUKih1RPmu6REVRH7SqP8jhSNFKeDORF7cCXGkhxY1wzbF7ul',
                         imagerySet: 'AerialWithLabels'
                     })
@@ -213,23 +227,26 @@ var MapComponent = (function (_super) {
             });
         });
     };
+    MapComponent.prototype.addAnimation = function (source) {
+        source.on('addfeature', function () { });
+    };
     MapComponent.prototype.ngOnInit = function () {
         var gotId = this.routeParams.get('mapid');
         this.bw = window.innerWidth;
         this.bh = window.innerHeight;
         this.mapid = gotId;
-        this.map = new this.ol.Map({
+        this.map = new Ol.Map({
             target: 'mmap',
             layers: [
                 this.provider(this.preferences.getPreferences().ChosenMap, false),
                 this.graphLayer, this.edgeLayer
             ],
-            view: new this.ol.View({
-                center: this.ol.proj.fromLonLat([37.41, 8.82]),
+            view: new Ol.View({
+                center: Ol.proj.fromLonLat([37.41, 8.82], undefined),
                 zoom: 3,
                 minZoom: 3, maxZoom: 20
             }),
-            controls: new this.ol.Collection(),
+            controls: new Ol.Collection([]),
         });
         this.addClickHandler(this.map);
     };
