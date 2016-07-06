@@ -63,6 +63,12 @@ var GraphEdge = (function () {
         }
         return coords;
     };
+    GraphEdge.prototype.attachView = function (f) {
+        this.view = f;
+    };
+    GraphEdge.prototype.getView = function () {
+        return this.view;
+    };
     return GraphEdge;
 }());
 exports.GraphEdge = GraphEdge;

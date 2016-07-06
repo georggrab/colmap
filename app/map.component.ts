@@ -64,11 +64,20 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 		let coords = edge.getLineCoords(network, Ol.proj.fromLonLat);
 		let line = new Ol.geom.LineString(coords);
 
+		// The GeoGraphNetwork is only supposed to be
+		// a temporary structure, so transfer metainformation
+		// in its edgenetwork to this.feature collections,
+		// which is directly connected to the map view.
+
+		// rly?
+
 		let edgeFeature = new Ol.Feature({
 			geometry : line,
-			name: "line"
+			from: edge.from,
+			to: edge.to
 		});
 		pushOnto.push(edgeFeature);
+		edge.attachView(edgeFeature);
 	}
 
 	displayEdges(node : CNode<Coords>, network : GeoGraphNetwork, pushOnto){
@@ -110,13 +119,13 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 
 		for (let addedEdge of update.additions){
 			this.displayEdgeRaw(addedEdge, ofOriginal, this.nodeFeatures);
-
-		}
-		for (let removedEdge of update.deletions){
-			// stub
 		}
 		for (let highlightEdge of update.highlight){
-
+			this.animateHighlight(highlightEdge, this.network);
+		}
+		for (let removedEdge of update.deletions){
+			// TODO UTILIZE EDGEFEATURES!!!!
+			this.deleteEdge(removedEdge, this.nodeFeatures, this.network);
 		}
 	}
 
@@ -140,6 +149,7 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 			});
 		});
 	}
+
 
 	connect(){
 		// socket connection logic here..
@@ -254,8 +264,50 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 		});
 	}
 
-	addAnimation(source){
-		source.on('addfeature', () =>{})
+	deleteEdge(edge : GraphEdge, view: Ol.Collection<Ol.Feature>, on : GeoGraphNetwork){
+		// TODO IN HERE
+		for (let edgeCanditate of on.nodes[edge.from].connections){
+			if (edgeCanditate.to == edge.to){
+				edgeCanditate.getView().setStyle(new Ol.style.Style({
+					stroke: new Ol.style.Stroke({
+						color:'rgba(200,50,20,0.6)', 
+						width:2,
+						lineDash : [5,5]
+					}),
+				}));
+
+				setTimeout(() => {
+					let feature = edgeCanditate.getView();
+					view.remove(feature);
+					edgeCanditate.attachView(null);
+					let idx = 0;
+					for (let e of on.nodes[edge.from].connections){
+						if (edgeCanditate.to = e.to){
+							on.nodes[edge.from].connections.splice(idx, 1);
+						}
+						idx++;
+					};
+				}, 500);
+			}
+		}
+	}
+
+	animateHighlight(edge : GraphEdge, on : GeoGraphNetwork){
+		for (let edgeCanditate of on.nodes[edge.from].connections){
+			if (edgeCanditate.to == edge.to){
+				edgeCanditate.getView().setStyle(new Ol.style.Style({
+					stroke: new Ol.style.Stroke({
+						color:'rgba(150,150,5,0.6)', 
+						width:2,
+						lineDash : [5,5]
+					}),
+				}));
+
+				setTimeout(() => {
+					edgeCanditate.getView().setStyle(null);
+				}, 1000);
+			}
+		}
 	}
 
 	ngOnInit(){

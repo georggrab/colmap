@@ -5,7 +5,6 @@ import { GeoGraphNetwork, CNode, Coords,
 	} from '../graph/graphnetwork';
 
 import { Observable } from 'rxjs/Observable';
-import {Map} from 'openlayers';
 
 @Injectable()
 export class BackendService {

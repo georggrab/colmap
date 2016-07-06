@@ -52,11 +52,18 @@ var MapComponent = (function (_super) {
     MapComponent.prototype.displayEdgeRaw = function (edge, network, pushOnto) {
         var coords = edge.getLineCoords(network, Ol.proj.fromLonLat);
         var line = new Ol.geom.LineString(coords);
+        // The GeoGraphNetwork is only supposed to be
+        // a temporary structure, so transfer metainformation
+        // in its edgenetwork to this.feature collections,
+        // which is directly connected to the map view.
+        // rly?
         var edgeFeature = new Ol.Feature({
             geometry: line,
-            name: "line"
+            from: edge.from,
+            to: edge.to
         });
         pushOnto.push(edgeFeature);
+        edge.attachView(edgeFeature);
     };
     MapComponent.prototype.displayEdges = function (node, network, pushOnto) {
         for (var _i = 0, _a = node.connections; _i < _a.length; _i++) {
@@ -97,11 +104,14 @@ var MapComponent = (function (_super) {
             var addedEdge = _c[_b];
             this.displayEdgeRaw(addedEdge, ofOriginal, this.nodeFeatures);
         }
-        for (var _d = 0, _e = update.deletions; _d < _e.length; _d++) {
-            var removedEdge = _e[_d];
+        for (var _d = 0, _e = update.highlight; _d < _e.length; _d++) {
+            var highlightEdge = _e[_d];
+            this.animateHighlight(highlightEdge, this.network);
         }
-        for (var _f = 0, _g = update.highlight; _f < _g.length; _f++) {
-            var highlightEdge = _g[_f];
+        for (var _f = 0, _g = update.deletions; _f < _g.length; _f++) {
+            var removedEdge = _g[_f];
+            // TODO UTILIZE EDGEFEATURES!!!!
+            this.deleteEdge(removedEdge, this.nodeFeatures, this.network);
         }
     };
     // TODO Observables haben hier nichts zu suchen
@@ -227,8 +237,57 @@ var MapComponent = (function (_super) {
             });
         });
     };
-    MapComponent.prototype.addAnimation = function (source) {
-        source.on('addfeature', function () { });
+    MapComponent.prototype.deleteEdge = function (edge, view, on) {
+        // TODO IN HERE
+        var _loop_1 = function(edgeCanditate) {
+            if (edgeCanditate.to == edge.to) {
+                edgeCanditate.getView().setStyle(new Ol.style.Style({
+                    stroke: new Ol.style.Stroke({
+                        color: 'rgba(200,50,20,0.6)',
+                        width: 2,
+                        lineDash: [5, 5]
+                    }),
+                }));
+                setTimeout(function () {
+                    var feature = edgeCanditate.getView();
+                    view.remove(feature);
+                    edgeCanditate.attachView(null);
+                    var idx = 0;
+                    for (var _i = 0, _a = on.nodes[edge.from].connections; _i < _a.length; _i++) {
+                        var e = _a[_i];
+                        if (edgeCanditate.to = e.to) {
+                            on.nodes[edge.from].connections.splice(idx, 1);
+                        }
+                        idx++;
+                    }
+                    ;
+                }, 500);
+            }
+        };
+        for (var _i = 0, _a = on.nodes[edge.from].connections; _i < _a.length; _i++) {
+            var edgeCanditate = _a[_i];
+            _loop_1(edgeCanditate);
+        }
+    };
+    MapComponent.prototype.animateHighlight = function (edge, on) {
+        var _loop_2 = function(edgeCanditate) {
+            if (edgeCanditate.to == edge.to) {
+                edgeCanditate.getView().setStyle(new Ol.style.Style({
+                    stroke: new Ol.style.Stroke({
+                        color: 'rgba(150,150,5,0.6)',
+                        width: 2,
+                        lineDash: [5, 5]
+                    }),
+                }));
+                setTimeout(function () {
+                    edgeCanditate.getView().setStyle(null);
+                }, 1000);
+            }
+        };
+        for (var _i = 0, _a = on.nodes[edge.from].connections; _i < _a.length; _i++) {
+            var edgeCanditate = _a[_i];
+            _loop_2(edgeCanditate);
+        }
     };
     MapComponent.prototype.ngOnInit = function () {
         var gotId = this.routeParams.get('mapid');

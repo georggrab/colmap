@@ -44,6 +44,8 @@ export class GraphNetworkUpdate {
 }
 
 export class GraphEdge {
+	view : any;
+
 	constructor(public from : string,
 		public to: string,
 		public bidirectional: boolean,
@@ -60,6 +62,14 @@ export class GraphEdge {
 			}
 		}
 		return coords;
+	}
+
+	attachView(f : any){
+		this.view = f;
+	}
+
+	getView(){
+		return this.view;
 	}
 }
 
