@@ -52,7 +52,8 @@ var BackendService = (function () {
             nodesUpdated: 3,
             additiveNodes: [{ "SanFrancisco": new graphnetwork_1.CNode(new graphnetwork_1.Coords(37.543589, -123.1674184)) }],
             additions: [
-                new graphnetwork_1.GraphEdge("NY", "SanFrancisco", true, null)
+                new graphnetwork_1.GraphEdge("NY", "SanFrancisco", true, null),
+                new graphnetwork_1.GraphEdge("NY", "Stuttgart", false, null)
             ],
             deletions: [
                 {

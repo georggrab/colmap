@@ -52,7 +52,8 @@ export class BackendService {
 			nodesUpdated: 3,
 			additiveNodes : [{"SanFrancisco" : new CNode<Coords>(new Coords(37.543589,-123.1674184))}],
 			additions: [
-				new GraphEdge("NY", "SanFrancisco", true, null)
+				new GraphEdge("NY", "SanFrancisco", true, null),
+				new GraphEdge("NY", "Stuttgart", false, null)
 			],
 			deletions: [
 				<GraphEdge> {

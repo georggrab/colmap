@@ -16,6 +16,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var core_1 = require('@angular/core');
 var router_deprecated_1 = require('@angular/router-deprecated');
 var material_1 = require('./material');
+var displaynodes_1 = require('./colmap/ui/displaynodes');
 var preferences_1 = require('./colmap/state/preferences');
 var server_1 = require('./colmap/network/server');
 var Ol = require('openlayers');
@@ -49,69 +50,27 @@ var MapComponent = (function (_super) {
             })
         });
     }
-    MapComponent.prototype.displayEdgeRaw = function (edge, network, pushOnto) {
-        var coords = edge.getLineCoords(network, Ol.proj.fromLonLat);
-        var line = new Ol.geom.LineString(coords);
-        // The GeoGraphNetwork is only supposed to be
-        // a temporary structure, so transfer metainformation
-        // in its edgenetwork to this.feature collections,
-        // which is directly connected to the map view.
-        // rly?
-        var edgeFeature = new Ol.Feature({
-            geometry: line,
-            from: edge.from,
-            to: edge.to
-        });
-        pushOnto.push(edgeFeature);
-        edge.attachView(edgeFeature);
-    };
-    MapComponent.prototype.displayEdges = function (node, network, pushOnto) {
-        for (var _i = 0, _a = node.connections; _i < _a.length; _i++) {
-            var edge = _a[_i];
-            this.displayEdgeRaw(edge, network, pushOnto);
-        }
-    };
-    MapComponent.prototype.displayNode = function (node, pushOnto) {
-        var lastInsertion = node.type.getOl(Ol.proj.fromLonLat);
-        var feature = new Ol.Feature(new Ol.geom.Point(lastInsertion));
-        feature.setStyle(new Ol.style.Style({
-            image: new Ol.style.RegularShape({
-                fill: new Ol.style.Fill({
-                    color: 'red'
-                }),
-                stroke: new Ol.style.Stroke({
-                    color: 'black', width: 2
-                }),
-                points: 4,
-                radius: 10,
-                radius2: 0,
-                angle: 0
-            })
-        }));
-        pushOnto.push(feature);
-        return lastInsertion;
-    };
     MapComponent.prototype.displayNetworkUpdate = function (update, ofOriginal) {
         // display new Nodes
         for (var _i = 0, _a = update.additiveNodes; _i < _a.length; _i++) {
             var addition = _a[_i];
             for (var nodeName in addition) {
                 ofOriginal.add(nodeName, addition[nodeName]);
-                this.displayNode(addition[nodeName], this.nodeFeatures);
+                displaynodes_1.DisplayNodeUtils.displayNode(addition[nodeName], this.nodeFeatures);
             }
         }
         for (var _b = 0, _c = update.additions; _b < _c.length; _b++) {
             var addedEdge = _c[_b];
-            this.displayEdgeRaw(addedEdge, ofOriginal, this.nodeFeatures);
+            displaynodes_1.DisplayNodeUtils.displayEdgeRaw(addedEdge, ofOriginal, this.nodeFeatures);
         }
         for (var _d = 0, _e = update.highlight; _d < _e.length; _d++) {
             var highlightEdge = _e[_d];
-            this.animateHighlight(highlightEdge, this.network);
+            displaynodes_1.DisplayNodeUtils.animateHighlight(highlightEdge, this.network);
         }
         for (var _f = 0, _g = update.deletions; _f < _g.length; _f++) {
             var removedEdge = _g[_f];
             // TODO UTILIZE EDGEFEATURES!!!!
-            this.deleteEdge(removedEdge, this.nodeFeatures, this.network);
+            displaynodes_1.DisplayNodeUtils.deleteEdge(removedEdge, this.nodeFeatures, this.network);
         }
     };
     // TODO Observables haben hier nichts zu suchen
@@ -124,8 +83,8 @@ var MapComponent = (function (_super) {
             var lastInsertion;
             // Iterate nodes of network and append
             network.nodeIterator(function (node, _, __) {
-                lastInsertion = _this.displayNode(node, _this.nodeFeatures);
-                _this.displayEdges(node, network, _this.nodeFeatures);
+                lastInsertion = displaynodes_1.DisplayNodeUtils.displayNode(node, _this.nodeFeatures);
+                displaynodes_1.DisplayNodeUtils.displayEdges(node, network, _this.nodeFeatures);
             }, function () {
                 if (lastInsertion !== undefined) {
                     _this.map.getView().setCenter(lastInsertion);
@@ -236,58 +195,6 @@ var MapComponent = (function (_super) {
                 console.log("Clicked on Feature near " + evt.coordinate);
             });
         });
-    };
-    MapComponent.prototype.deleteEdge = function (edge, view, on) {
-        // TODO IN HERE
-        var _loop_1 = function(edgeCanditate) {
-            if (edgeCanditate.to == edge.to) {
-                edgeCanditate.getView().setStyle(new Ol.style.Style({
-                    stroke: new Ol.style.Stroke({
-                        color: 'rgba(200,50,20,0.6)',
-                        width: 2,
-                        lineDash: [5, 5]
-                    }),
-                }));
-                setTimeout(function () {
-                    var feature = edgeCanditate.getView();
-                    view.remove(feature);
-                    edgeCanditate.attachView(null);
-                    var idx = 0;
-                    for (var _i = 0, _a = on.nodes[edge.from].connections; _i < _a.length; _i++) {
-                        var e = _a[_i];
-                        if (edgeCanditate.to = e.to) {
-                            on.nodes[edge.from].connections.splice(idx, 1);
-                        }
-                        idx++;
-                    }
-                    ;
-                }, 500);
-            }
-        };
-        for (var _i = 0, _a = on.nodes[edge.from].connections; _i < _a.length; _i++) {
-            var edgeCanditate = _a[_i];
-            _loop_1(edgeCanditate);
-        }
-    };
-    MapComponent.prototype.animateHighlight = function (edge, on) {
-        var _loop_2 = function(edgeCanditate) {
-            if (edgeCanditate.to == edge.to) {
-                edgeCanditate.getView().setStyle(new Ol.style.Style({
-                    stroke: new Ol.style.Stroke({
-                        color: 'rgba(150,150,5,0.6)',
-                        width: 2,
-                        lineDash: [5, 5]
-                    }),
-                }));
-                setTimeout(function () {
-                    edgeCanditate.getView().setStyle(null);
-                }, 1000);
-            }
-        };
-        for (var _i = 0, _a = on.nodes[edge.from].connections; _i < _a.length; _i++) {
-            var edgeCanditate = _a[_i];
-            _loop_2(edgeCanditate);
-        }
     };
     MapComponent.prototype.ngOnInit = function () {
         var gotId = this.routeParams.get('mapid');

@@ -5,6 +5,7 @@ import { MaterialTemplate } from './material';
 import { GeoGraphNetwork, COLConnectionInfo, 
 	GraphNetworkHealth, Coords, CNode, GraphEdge,
 	GraphNetworkUpdate } from './colmap/graph/graphnetwork';
+import { DisplayNodeUtils } from './colmap/ui/displaynodes';
 import { PerferenceService } from './colmap/state/preferences';
 import { BackendService } from './colmap/network/server';
 
@@ -60,72 +61,25 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 		super();
 	}
 
-	displayEdgeRaw(edge : GraphEdge, network: GeoGraphNetwork, pushOnto){
-		let coords = edge.getLineCoords(network, Ol.proj.fromLonLat);
-		let line = new Ol.geom.LineString(coords);
-
-		// The GeoGraphNetwork is only supposed to be
-		// a temporary structure, so transfer metainformation
-		// in its edgenetwork to this.feature collections,
-		// which is directly connected to the map view.
-
-		// rly?
-
-		let edgeFeature = new Ol.Feature({
-			geometry : line,
-			from: edge.from,
-			to: edge.to
-		});
-		pushOnto.push(edgeFeature);
-		edge.attachView(edgeFeature);
-	}
-
-	displayEdges(node : CNode<Coords>, network : GeoGraphNetwork, pushOnto){
-		for (let edge of node.connections){
-			this.displayEdgeRaw(edge, network, pushOnto);
-		}
-	}
-
-	displayNode(node : CNode<Coords>, pushOnto) : any {
-		let lastInsertion = node.type.getOl(Ol.proj.fromLonLat);
-		let feature = new Ol.Feature(new Ol.geom.Point(lastInsertion));
-		feature.setStyle(new Ol.style.Style({
-			image : new Ol.style.RegularShape({
-				fill : new Ol.style.Fill({
-					color: 'red'
-				}),
-				stroke : new Ol.style.Stroke({
-					color: 'black', width: 2
-				}),
-				points: 4,
-				radius: 10,
-				radius2: 0,
-				angle: 0
-			})
-		}));
-
-		pushOnto.push(feature);
-		return lastInsertion;
-	}
 
 	displayNetworkUpdate(update : GraphNetworkUpdate, ofOriginal : GeoGraphNetwork){
 		// display new Nodes
 		for (let addition of update.additiveNodes){
 			for (let nodeName in addition){
 				ofOriginal.add(nodeName, addition[nodeName]);
-				this.displayNode(addition[nodeName], this.nodeFeatures);
+				DisplayNodeUtils.displayNode(addition[nodeName], this.nodeFeatures);
 			}
 		}
 
 		for (let addedEdge of update.additions){
-			this.displayEdgeRaw(addedEdge, ofOriginal, this.nodeFeatures);
+			DisplayNodeUtils.displayEdgeRaw(addedEdge, ofOriginal, this.nodeFeatures);
 		}
 		for (let highlightEdge of update.highlight){
-			this.animateHighlight(highlightEdge, this.network);
+			DisplayNodeUtils.animateHighlight(highlightEdge, this.network);
 		}
 		for (let removedEdge of update.deletions){
 			// TODO UTILIZE EDGEFEATURES!!!!
-			this.deleteEdge(removedEdge, this.nodeFeatures, this.network);
+			DisplayNodeUtils.deleteEdge(removedEdge, this.nodeFeatures, this.network);
 		}
 	}
 
@@ -140,8 +94,8 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 
 			// Iterate nodes of network and append
 			network.nodeIterator((node : CNode<Coords>, _, __) => {
-				lastInsertion = this.displayNode(node, this.nodeFeatures);
-				this.displayEdges(node, network, this.nodeFeatures);
+				lastInsertion = DisplayNodeUtils.displayNode(node, this.nodeFeatures);
+				DisplayNodeUtils.displayEdges(node, network, this.nodeFeatures);
 			}, () => {
 				if (lastInsertion !== undefined){
 					this.map.getView().setCenter(lastInsertion);
@@ -264,51 +218,6 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 		});
 	}
 
-	deleteEdge(edge : GraphEdge, view: Ol.Collection<Ol.Feature>, on : GeoGraphNetwork){
-		// TODO IN HERE
-		for (let edgeCanditate of on.nodes[edge.from].connections){
-			if (edgeCanditate.to == edge.to){
-				edgeCanditate.getView().setStyle(new Ol.style.Style({
-					stroke: new Ol.style.Stroke({
-						color:'rgba(200,50,20,0.6)', 
-						width:2,
-						lineDash : [5,5]
-					}),
-				}));
-
-				setTimeout(() => {
-					let feature = edgeCanditate.getView();
-					view.remove(feature);
-					edgeCanditate.attachView(null);
-					let idx = 0;
-					for (let e of on.nodes[edge.from].connections){
-						if (edgeCanditate.to = e.to){
-							on.nodes[edge.from].connections.splice(idx, 1);
-						}
-						idx++;
-					};
-				}, 500);
-			}
-		}
-	}
-
-	animateHighlight(edge : GraphEdge, on : GeoGraphNetwork){
-		for (let edgeCanditate of on.nodes[edge.from].connections){
-			if (edgeCanditate.to == edge.to){
-				edgeCanditate.getView().setStyle(new Ol.style.Style({
-					stroke: new Ol.style.Stroke({
-						color:'rgba(150,150,5,0.6)', 
-						width:2,
-						lineDash : [5,5]
-					}),
-				}));
-
-				setTimeout(() => {
-					edgeCanditate.getView().setStyle(null);
-				}, 1000);
-			}
-		}
-	}
 
 	ngOnInit(){
 		let gotId = this.routeParams.get('mapid');
