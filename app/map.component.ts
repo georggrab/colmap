@@ -46,13 +46,6 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 		source: new Ol.source.Vector({
 			features: this.edgeFeatures
 		}),
-		style: new Ol.style.Style({
-			stroke: new Ol.style.Stroke({
-				color:'rgba(10,50,200,0.3)', 
-				width:2,
-				lineDash : [5,5]
-			}),
-		})
 	});
 
 	constructor(private routeParams: RouteParams, 
@@ -63,20 +56,42 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 
 
 	displayNetworkUpdate(update : GraphNetworkUpdate, ofOriginal : GeoGraphNetwork){
-		// display new Nodes
+		// todo refactor this function so not so much mutable state is being
+		// thrown all around between map.component and displaynodes. Make Graphnetwork
+		// Immutable?
+		// Todo, update.additions o.ä, sollten keine GraphEdges sein, weil es keine
+		// GraphEdges sind, sondern suchkriterien für GeoGraphNetwork.nodeExists, und kriterien
+		// für erstellung der Edges. Stattdessen irgendeinen intermediate type benutzen!!!!!!!!
+
 		for (let addition of update.additiveNodes){
 			for (let nodeName in addition){
-				ofOriginal.add(nodeName, addition[nodeName]);
-				DisplayNodeUtils.displayNode(addition[nodeName], this.nodeFeatures);
+				if (!ofOriginal.nodeExists(nodeName)){
+					ofOriginal.add(nodeName, addition[nodeName]);
+					DisplayNodeUtils.displayNode(addition[nodeName], this.nodeFeatures);
+				} else {
+					// Todo once node highlighting is implemented: Do a highlight
+					// here instead.
+					console.log(`Ignoring insertion of Duplicate: ${nodeName}`);
+				}
 			}
 		}
 
 		for (let addedEdge of update.additions){
-			DisplayNodeUtils.displayEdgeRaw(addedEdge, ofOriginal, this.nodeFeatures);
+			let edge = ofOriginal.findEdge(addedEdge);
+			if (edge === null){
+				edge = ofOriginal.connector(addedEdge.from, [addedEdge.to], false);
+				DisplayNodeUtils.displayEdgeRaw(edge, ofOriginal, this.nodeFeatures);
+			} else {
+				// Todo: add a settings option that allows to turn this off.
+				console.log(`Edge ${edge} exists, highlighting instead.`);
+				DisplayNodeUtils.animateHighlight(edge, this.network);
+			}
 		}
+
 		for (let highlightEdge of update.highlight){
 			DisplayNodeUtils.animateHighlight(highlightEdge, this.network);
 		}
+
 		for (let removedEdge of update.deletions){
 			// TODO UTILIZE EDGEFEATURES!!!!
 			DisplayNodeUtils.deleteEdge(removedEdge, this.nodeFeatures, this.network);

@@ -7,27 +7,31 @@ var DisplaySettings = (function () {
         // Todo create Settings interface for things like this
         this.HighlightDuration = 1000;
         this.DeleteDuration = 1000;
-        this.EdgeStrokeNormal = new Ol.style.Stroke({
-            color: 'rgba(200,50,20,0.6)',
-            width: 2,
-            lineDash: [5, 5]
+        this.EdgeStyleNormal = new Ol.style.Style({
+            stroke: new Ol.style.Stroke({
+                color: 'rgba(200,50,20,0.6)',
+                width: 2,
+                lineDash: [5, 5]
+            })
         });
-        this.EdgeStrokeHighlight = new Ol.style.Stroke({
-            color: 'rgba(150,150,5,0.6)',
-            width: 2,
-            lineDash: [5, 5]
+        this.EdgeStyleHighlight = new Ol.style.Style({
+            stroke: new Ol.style.Stroke({
+                color: 'rgba(150,150,5,0.6)',
+                width: 2,
+                lineDash: [5, 5]
+            })
         });
         this.NodeStyle = new Ol.style.Style({
             image: new Ol.style.RegularShape({
                 fill: new Ol.style.Fill({
-                    color: 'red'
+                    color: 'rgba(30,50,230,0.6)'
                 }),
                 stroke: new Ol.style.Stroke({
-                    color: 'black', width: 2
+                    color: 'gray', width: 1
                 }),
-                points: 4,
-                radius: 10,
-                radius2: 0,
+                points: 9,
+                radius: 3,
+                radius2: 3,
                 angle: 0
             })
         });
@@ -44,7 +48,7 @@ var DisplayNodeUtils = (function () {
     DisplayNodeUtils.deleteEdge = function (edge, view, on) {
         var _loop_1 = function(edgeCanditate) {
             if (edgeCanditate.to == edge.to) {
-                edgeCanditate.getView().setStyle(this_1.Display.EdgeStrokeNormal);
+                edgeCanditate.getView().setStyle(this_1.Display.EdgeStyleNormal);
                 setTimeout(function () {
                     // Todo: Is this too mighty? This Function shouldn't modify the graphnetworks state
                     // remove injection of on : GeoGraphNetwork at some point..
@@ -72,7 +76,7 @@ var DisplayNodeUtils = (function () {
     DisplayNodeUtils.animateHighlight = function (edge, on) {
         var _loop_2 = function(edgeCanditate) {
             if (edgeCanditate.to == edge.to) {
-                edgeCanditate.getView().setStyle(this_2.Display.EdgeStrokeHighlight);
+                edgeCanditate.getView().setStyle(this_2.Display.EdgeStyleHighlight);
                 setTimeout(function () {
                     edgeCanditate.getView().setStyle(null);
                 }, this_2.Display.HighlightDuration);

@@ -28,7 +28,7 @@ var BackendService = (function () {
                     }
                 };
                 observer.next(c);
-            }, 1000);
+            }, 400);
         });
     };
     BackendService.prototype.downloadNetwork = function () {
@@ -44,7 +44,7 @@ var BackendService = (function () {
                 g.connector("NY", ["London"]);
                 g.connector("London", ["Stuttgart"]);
                 observer.next(g);
-            }, 2000);
+            }, 400);
         });
     };
     BackendService.prototype.retrieveDelta = function (since) {

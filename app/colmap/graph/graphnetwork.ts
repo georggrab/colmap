@@ -77,6 +77,24 @@ export class GraphEdge {
 export class GraphNetwork<T> {
 	public nodes = {};
 
+	public edgeExists(e : GraphEdge) : boolean {
+		return this.findEdge(e) !== null;
+	}
+
+	// Todo this type shall be a intermediate one:
+	// findEdge(e: GraphEdgeCriteria) : Maybe GraphEdge
+	public findEdge(e: GraphEdge){
+		let edgeStartNode = this.nodes[e.from];
+		for (let connection of edgeStartNode.connections){
+			if (connection.to == e.to) return connection;
+		}
+		return null;
+	}
+
+	public nodeExists(name : string) : boolean {
+		return this.nodes.hasOwnProperty(name);
+	}
+
 	public nodeIterator(iterator : (node : CNode<T>, key?: string, n? : number) => void, after? : () => void) : void {
 		// replace this with smartass graph traversal function
 		let n = 0;
@@ -91,11 +109,15 @@ export class GraphNetwork<T> {
 		this.nodes[label] = c;
 		return c;
 	}
-	public connector(node : string, to : string[], bidirectional : boolean = true){
+	public connector(node : string, to : string[], bidirectional : boolean = true) : GraphEdge {
+		let lastAddedEdge : GraphEdge;
 		if (this.nodes.hasOwnProperty(node)){
 			for (let connect of to){
-				let g: GraphEdge = new GraphEdge(node, connect, bidirectional, null);
-				this.nodes[node].connections.push(g);
+				lastAddedEdge = new GraphEdge(node, connect, bidirectional, null);
+				this.nodes[node].connections.push(lastAddedEdge);
+
+				// TODO i'm not happy with this. Somehow, there must be a O(1) link between
+				// both directions of the GraphEdge. Cross Referencing properties maybe.
 				if (bidirectional){
 					if (this.nodes.hasOwnProperty(connect)){
 						// TODO Minimal spannender Baum?
@@ -109,6 +131,7 @@ export class GraphNetwork<T> {
 		} else {
 			throw `No such node in Network: ${node}`;
 		}
+		return lastAddedEdge;
 	}
 	public directConnection(node1 : string, node2 : string) : boolean{
 		return this.nodes[node1].connections.indexOf(node2) != -1;

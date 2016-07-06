@@ -76,6 +76,23 @@ var GraphNetwork = (function () {
     function GraphNetwork() {
         this.nodes = {};
     }
+    GraphNetwork.prototype.edgeExists = function (e) {
+        return this.findEdge(e) !== null;
+    };
+    // Todo this type shall be a intermediate one:
+    // findEdge(e: GraphEdgeCriteria) : Maybe GraphEdge
+    GraphNetwork.prototype.findEdge = function (e) {
+        var edgeStartNode = this.nodes[e.from];
+        for (var _i = 0, _a = edgeStartNode.connections; _i < _a.length; _i++) {
+            var connection = _a[_i];
+            if (connection.to == e.to)
+                return connection;
+        }
+        return null;
+    };
+    GraphNetwork.prototype.nodeExists = function (name) {
+        return this.nodes.hasOwnProperty(name);
+    };
     GraphNetwork.prototype.nodeIterator = function (iterator, after) {
         // replace this with smartass graph traversal function
         var n = 0;
@@ -91,11 +108,14 @@ var GraphNetwork = (function () {
     };
     GraphNetwork.prototype.connector = function (node, to, bidirectional) {
         if (bidirectional === void 0) { bidirectional = true; }
+        var lastAddedEdge;
         if (this.nodes.hasOwnProperty(node)) {
             for (var _i = 0, to_1 = to; _i < to_1.length; _i++) {
                 var connect = to_1[_i];
-                var g = new GraphEdge(node, connect, bidirectional, null);
-                this.nodes[node].connections.push(g);
+                lastAddedEdge = new GraphEdge(node, connect, bidirectional, null);
+                this.nodes[node].connections.push(lastAddedEdge);
+                // TODO i'm not happy with this. Somehow, there must be a O(1) link between
+                // both directions of the GraphEdge. Cross Referencing properties maybe.
                 if (bidirectional) {
                     if (this.nodes.hasOwnProperty(connect)) {
                         // TODO Minimal spannender Baum?
@@ -111,6 +131,7 @@ var GraphNetwork = (function () {
         else {
             throw "No such node in Network: " + node;
         }
+        return lastAddedEdge;
     };
     GraphNetwork.prototype.directConnection = function (node1, node2) {
         return this.nodes[node1].connections.indexOf(node2) != -1;

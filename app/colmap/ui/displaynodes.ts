@@ -9,29 +9,33 @@ export class DisplaySettings {
 	public HighlightDuration : number = 1000;
 	public DeleteDuration : number = 1000;
 
-	public EdgeStrokeNormal : Ol.style.Stroke = new Ol.style.Stroke({
-		color : 'rgba(200,50,20,0.6)',
-		width:2,
-		lineDash : [5,5]
+	public EdgeStyleNormal : Ol.style.Style = new Ol.style.Style({
+		stroke : new Ol.style.Stroke({
+			color : 'rgba(200,50,20,0.6)',
+			width:2,
+			lineDash : [5,5]
+		})
 	});
 
-	public EdgeStrokeHighlight : Ol.style.Stroke = new Ol.style.Stroke({
-		color:'rgba(150,150,5,0.6)', 
-		width:2,
-		lineDash : [5,5]
-	});
+	public EdgeStyleHighlight : Ol.style.Style = new Ol.style.Style({
+		stroke: new Ol.style.Stroke({
+			color:'rgba(150,150,5,0.6)', 
+			width:2,
+			lineDash : [5,5]
+		})
+	}); 
 
 	public NodeStyle : Ol.style.Style = new Ol.style.Style({
 		image : new Ol.style.RegularShape({
 			fill : new Ol.style.Fill({
-				color: 'red'
+				color: 'rgba(30,50,230,0.6)'
 			}),
 			stroke : new Ol.style.Stroke({
-				color: 'black', width: 2
+				color: 'gray', width: 1
 			}),
-			points: 4,
-			radius: 10,
-			radius2: 0,
+			points: 9,
+			radius: 3,
+			radius2: 3,
 			angle: 0
 		})
 	});
@@ -47,7 +51,7 @@ export class DisplayNodeUtils {
 	static deleteEdge(edge : GraphEdge, view: Ol.Collection<Ol.Feature>, on : GeoGraphNetwork){
 		for (let edgeCanditate of on.nodes[edge.from].connections){
 			if (edgeCanditate.to == edge.to){
-				edgeCanditate.getView().setStyle(this.Display.EdgeStrokeNormal);
+				edgeCanditate.getView().setStyle(this.Display.EdgeStyleNormal);
 
 				setTimeout(() => {
 					// Todo: Is this too mighty? This Function shouldn't modify the graphnetworks state
@@ -73,7 +77,7 @@ export class DisplayNodeUtils {
 	static animateHighlight(edge : GraphEdge, on : GeoGraphNetwork){
 		for (let edgeCanditate of on.nodes[edge.from].connections){
 			if (edgeCanditate.to == edge.to){
-				edgeCanditate.getView().setStyle(this.Display.EdgeStrokeHighlight);
+				edgeCanditate.getView().setStyle(this.Display.EdgeStyleHighlight);
 
 				setTimeout(() => {
 					edgeCanditate.getView().setStyle(null);
@@ -98,6 +102,7 @@ export class DisplayNodeUtils {
 			from: edge.from,
 			to: edge.to
 		});
+
 		pushOnto.push(edgeFeature);
 		edge.attachView(edgeFeature);
 	}

@@ -22,7 +22,7 @@ export class BackendService {
 					}
 				};
 				observer.next(c);
-			} , 1000);
+			} , 400);
 		});
 	}
 
@@ -43,7 +43,7 @@ export class BackendService {
 
 				observer.next(g);
 
-			} , 2000);
+			} , 400);
 		});
 	}
 
