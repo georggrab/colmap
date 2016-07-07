@@ -1,9 +1,17 @@
 "use strict";
 var GetEndpoint = (function () {
-    function GetEndpoint() {
+    function GetEndpoint(options) {
+        debugger;
+        this.db = options.database;
     }
     GetEndpoint.prototype.getRoute = function (req, res) {
-        res.json({ ohai: "stub" });
+        this.db.cypher({
+            query: "MATCH (n) RETURN n"
+        }, function (err, results) {
+            if (err)
+                throw err;
+            res.json(results);
+        });
     };
     GetEndpoint.prototype.getMethod = function () {
         return "GET";
