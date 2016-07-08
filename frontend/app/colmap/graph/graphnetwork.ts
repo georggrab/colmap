@@ -140,8 +140,33 @@ export class GraphNetwork<T> {
 
 export class GeoGraphNetwork extends GraphNetwork<Coords> implements ITransferOL {
 
-	search(c: CNode<Coords>, criteria: (c : CNode<Coords>) => boolean) {
-
+	constructFrom(socketObject : Array<any>){
+		// Socketobject contains, CNodes, Users and Services.
+		// TODO separate this.
+		for (let genericNode of socketObject){
+			if (genericNode.n.labels.length < 1) {
+				console.log("Warning: node has no labels:");
+				console.log(genericNode);
+				continue;
+			}
+			switch (genericNode.n.labels[0]) {
+				case "CNode" : 
+					this.add(genericNode.n._id, 
+						new CNode<Coords>(
+							new Coords(genericNode.n.properties.x, genericNode.n.properties.y)));
+					break;
+				case "Service":
+					break;
+				case "User":
+					break;
+			}
+		}
+		for (let relationship of socketObject){
+			this.connector(relationship.r._fromId, [relationship.r._toId], false);
+		}
+		console.log("In constructFrom!");
+		console.log(socketObject);
+		return;
 	}
 
 	transfer(){

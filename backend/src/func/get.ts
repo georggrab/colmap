@@ -9,13 +9,18 @@ export class GetEndpoint implements Endpoint {
 		this.db = options.database;	
 	}
 
-	getRoute(req: Exp.Request, res: Exp.Response){
+	get(callback) : void {
 		this.db.cypher({
-			query : "MATCH (n) RETURN n"
+			query : "OPTIONAL MATCH (n:CNode)-[r:HYPERLINKS]-(m:CNode) RETURN n,r,m"
 		}, (err, results) => {
 			if (err) throw err;
-			res.json(results);
+			callback(results);
 		});
+
+	}
+
+	getRoute(req: Exp.Request, res: Exp.Response){
+		this.get((result) => res.json(result));
 	}
 
 	getMethod() : string {

@@ -144,7 +144,33 @@ var GeoGraphNetwork = (function (_super) {
     function GeoGraphNetwork() {
         _super.apply(this, arguments);
     }
-    GeoGraphNetwork.prototype.search = function (c, criteria) {
+    GeoGraphNetwork.prototype.constructFrom = function (socketObject) {
+        // Socketobject contains, CNodes, Users and Services.
+        // TODO separate this.
+        for (var _i = 0, socketObject_1 = socketObject; _i < socketObject_1.length; _i++) {
+            var genericNode = socketObject_1[_i];
+            if (genericNode.n.labels.length < 1) {
+                console.log("Warning: node has no labels:");
+                console.log(genericNode);
+                continue;
+            }
+            switch (genericNode.n.labels[0]) {
+                case "CNode":
+                    this.add(genericNode.n._id, new CNode(new Coords(genericNode.n.properties.x, genericNode.n.properties.y)));
+                    break;
+                case "Service":
+                    break;
+                case "User":
+                    break;
+            }
+        }
+        for (var _a = 0, socketObject_2 = socketObject; _a < socketObject_2.length; _a++) {
+            var relationship = socketObject_2[_a];
+            this.connector(relationship.r._fromId, [relationship.r._toId], false);
+        }
+        console.log("In constructFrom!");
+        console.log(socketObject);
+        return;
     };
     GeoGraphNetwork.prototype.transfer = function () {
         return new Array();

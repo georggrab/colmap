@@ -24,7 +24,7 @@ export class BackendService {
 					connected : true
 				});	
 			});
-			
+
 			this.conn.on('connectioninfo', (things) => {
 				observer.next(<COLConnectionInfo> {
 					connected : true,
@@ -35,10 +35,16 @@ export class BackendService {
 	}
 
 	downloadNetwork() : Observable<GeoGraphNetwork> {
+		this.conn.emit('wantNetwork');
 		return Observable.create((observer) => {
 			// TODO Stub for Network things!	
-			setTimeout(() => {
+			this.conn.on('getNetwork', (network) => {
 				let g = new GeoGraphNetwork();
+				g.constructFrom(network);
+
+				observer.next(g);
+			});
+				/*let g = new GeoGraphNetwork();
 
 				g.add("Berlin", new CNode<Coords>(new Coords(52.5062185,12.8647592)));
 				g.add("Stuttgart", new CNode<Coords>(new Coords(48.7791242,9.0371341)));
@@ -49,9 +55,8 @@ export class BackendService {
 				g.connector("NY", ["London"]);
 				g.connector("London", ["Stuttgart"]);
 
-				observer.next(g);
+				observer.next(g);*/
 
-			} , 400);
 		});
 	}
 

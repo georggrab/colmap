@@ -3,14 +3,17 @@ var GetEndpoint = (function () {
     function GetEndpoint(options) {
         this.db = options.database;
     }
-    GetEndpoint.prototype.getRoute = function (req, res) {
+    GetEndpoint.prototype.get = function (callback) {
         this.db.cypher({
-            query: "MATCH (n) RETURN n"
+            query: "OPTIONAL MATCH (n:CNode)-[r:HYPERLINKS]-(m:CNode) RETURN n,r,m"
         }, function (err, results) {
             if (err)
                 throw err;
-            res.json(results);
+            callback(results);
         });
+    };
+    GetEndpoint.prototype.getRoute = function (req, res) {
+        this.get(function (result) { return res.json(result); });
     };
     GetEndpoint.prototype.getMethod = function () {
         return "GET";
