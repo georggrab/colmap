@@ -1,6 +1,5 @@
 import * as Ol from 'openlayers';
 import {GeoGraphNetwork, GraphEdge, CNode, Coords} from '../graph/graphnetwork';
-
 export class DisplaySettings {
 	// Todo Integrate into colmap.state.persistence
 	// Todo can persistence be achieved via TS decorators?

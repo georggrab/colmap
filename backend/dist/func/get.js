@@ -1,7 +1,6 @@
 "use strict";
 var GetEndpoint = (function () {
     function GetEndpoint(options) {
-        debugger;
         this.db = options.database;
     }
     GetEndpoint.prototype.getRoute = function (req, res) {

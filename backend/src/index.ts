@@ -1,6 +1,3 @@
-import * as Exp from "express";
-import * as Server from "http";
-
 import * as Bodyparser from "body-parser";
 
 import { PropagateEndpoint } from './func/propagate';
@@ -8,11 +5,17 @@ import { RegisterEndpoint } from './func/register';
 import { GetEndpoint } from './func/get';
 import { Endpoint } from './func/core';
 
-let neo4j = require("neo4j");
-let db = new neo4j.GraphDatabase("http://neo4j:admin@localhost:7474");
 
-let app : Exp.Express = Exp();
-let route = Exp.Router();
+// Non typings supported libs:
+let express = require("express");
+let app = express();
+
+let neo4j = require("neo4j");
+let http = require("http").Server(app);
+let io = require("socket.io")(http);
+
+let db = new neo4j.GraphDatabase("http://neo4j:admin@localhost:7474");
+let route = express.Router();
 
 let routeMap = [
 	{"/:id/register" 	: 	new RegisterEndpoint({
@@ -34,11 +37,15 @@ for (let entry of routeMap){
 				break;
 
 			case "POST":
-				route.post(url, entry[url].getRoute);
+				route.post(url, entry[url].getRoute.bind(entry[url]));
 				break;
 		}
 	}
 }
 
+app.use(Bodyparser.json());
 app.use('/map', route);
-Server.createServer(app).listen(3001);
+
+http.listen(3001, () => {
+	console.log("Listening on http://127.0.0.1:3001");
+});
