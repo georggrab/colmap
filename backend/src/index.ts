@@ -43,6 +43,20 @@ for (let entry of routeMap){
 	}
 }
 
+let users = 0;
+io.on('connection', (socket) => {
+	users++;
+	io.sockets.emit('connectioninfo', {
+		users: users,
+	});
+	socket.on('disconnect', () => { 
+		users--;
+		io.sockets.emit('connectioninfo', {
+			users: users,
+		});
+	})
+});
+
 app.use(Bodyparser.json());
 app.use('/map', route);
 

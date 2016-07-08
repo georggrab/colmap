@@ -5,24 +5,32 @@ import { GeoGraphNetwork, CNode, Coords,
 	} from '../graph/graphnetwork';
 
 import { Observable } from 'rxjs/Observable';
+import * as io from 'socket.io-client';
 
 @Injectable()
 export class BackendService {
+	conn : any;
+
 	connect(endpoint : string) : Observable<COLConnectionInfo> {
+		this.conn = io.connect('http://127.0.0.1:3001');
+
+		this.conn.on('connect', () => {
+			console.log("Socket.IO: Connected to server!");
+		})
+
 		return Observable.create((observer) => {
-			// TODO Stub for Network things!
-			setTimeout(() => {
-				let c = <COLConnectionInfo> {
+			this.conn.on('connect', () => {
+				observer.next(<COLConnectionInfo> {
+					connected : true
+				});	
+			});
+			
+			this.conn.on('connectioninfo', (things) => {
+				observer.next(<COLConnectionInfo> {
 					connected : true,
-					connectedUsers : 5,
-					connectedServices : 1,
-					networkHealth : <GraphNetworkHealth> {
-						nodes: 4,
-						lastUpdate : 2222222222
-					}
-				};
-				observer.next(c);
-			} , 400);
+					connectedUsers : things.users
+				});
+			});
 		});
 	}
 

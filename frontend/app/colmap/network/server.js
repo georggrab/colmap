@@ -11,24 +11,28 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var core_1 = require('@angular/core');
 var graphnetwork_1 = require('../graph/graphnetwork');
 var Observable_1 = require('rxjs/Observable');
+var io = require('socket.io-client');
 var BackendService = (function () {
     function BackendService() {
     }
     BackendService.prototype.connect = function (endpoint) {
+        var _this = this;
+        this.conn = io.connect('http://127.0.0.1:3001');
+        this.conn.on('connect', function () {
+            console.log("Socket.IO: Connected to server!");
+        });
         return Observable_1.Observable.create(function (observer) {
-            // TODO Stub for Network things!
-            setTimeout(function () {
-                var c = {
+            _this.conn.on('connect', function () {
+                observer.next({
+                    connected: true
+                });
+            });
+            _this.conn.on('connectioninfo', function (things) {
+                observer.next({
                     connected: true,
-                    connectedUsers: 5,
-                    connectedServices: 1,
-                    networkHealth: {
-                        nodes: 4,
-                        lastUpdate: 2222222222
-                    }
-                };
-                observer.next(c);
-            }, 400);
+                    connectedUsers: things.users
+                });
+            });
         });
     };
     BackendService.prototype.downloadNetwork = function () {

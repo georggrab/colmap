@@ -34,8 +34,23 @@ for (var _i = 0, routeMap_1 = routeMap; _i < routeMap_1.length; _i++) {
         }
     }
 }
+var users = 0;
+io.on('connection', function (socket) {
+    users++;
+    io.sockets.emit('connectioninfo', {
+        users: users,
+        test: "test"
+    });
+    socket.on('disconnect', function () {
+        users--;
+        io.sockets.emit('connectioninfo', {
+            users: users,
+            test2: "test2"
+        });
+    });
+});
 app.use(Bodyparser.json());
-app.use('/api', route);
+app.use('/map', route);
 http.listen(3001, function () {
     console.log("Listening on http://127.0.0.1:3001");
 });
