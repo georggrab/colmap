@@ -3,12 +3,16 @@ var utils_1 = require('../util/utils');
 var PropagateEndpoint = (function () {
     function PropagateEndpoint(options) {
         this.db = options.database;
+        this.io = options.socket;
     }
     PropagateEndpoint.prototype.getRoute = function (req, res) {
         var btc = [];
+        var iopushs = [];
         if (req.body["highlightNode"]) {
+            iopushs.push({ highlightNode: req.body.highlightNode });
         }
         if (req.body["highlightEdge"]) {
+            iopushs.push({ highlightEdge: req.body.highlightEdge });
         }
         if (req.body["addNode"]) {
             for (var _i = 0, _a = req.body.addNode; _i < _a.length; _i++) {
@@ -21,6 +25,7 @@ var PropagateEndpoint = (function () {
                         ip: node.ip, x: node.x, y: node.y }
                 });
             }
+            iopushs.push({ addNode: req.body.addNode });
         }
         if (req.body["addEdge"]) {
             for (var _b = 0, _c = req.body.addEdge; _b < _c.length; _b++) {
@@ -32,6 +37,7 @@ var PropagateEndpoint = (function () {
                     }
                 });
             }
+            iopushs.push({ addEdge: req.body.addEdge });
         }
         if (req.body["rmNode"]) {
             for (var _d = 0, _e = req.body.rmNode; _d < _e.length; _d++) {
@@ -43,11 +49,13 @@ var PropagateEndpoint = (function () {
                     }
                 });
             }
+            iopushs.push({ rmNode: req.body.rmNode });
         }
         var streams = this.db.cypher({ queries: btc }, function (err, results) {
             console.log("Finished propagating: " + err);
             res.json(results);
         });
+        this.io.sockets.emit("networkupdate", iopushs);
     };
     PropagateEndpoint.prototype.getMethod = function () {
         return "POST";

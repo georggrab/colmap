@@ -18,6 +18,7 @@ export class BackendService {
 			console.log("Socket.IO: Connected to server!");
 		})
 
+
 		return Observable.create((observer) => {
 			this.conn.on('connect', () => {
 				observer.next(<COLConnectionInfo> {
@@ -44,24 +45,57 @@ export class BackendService {
 
 				observer.next(g);
 			});
-				/*let g = new GeoGraphNetwork();
-
-				g.add("Berlin", new CNode<Coords>(new Coords(52.5062185,12.8647592)));
-				g.add("Stuttgart", new CNode<Coords>(new Coords(48.7791242,9.0371341)));
-				g.add("London", new CNode<Coords>(new Coords(51.528308,-0.3817701)));
-				g.add("NY", new CNode<Coords>(new Coords(43.9957508,-72.7008926)));
-
-				g.connector("London", ["Berlin"], false);
-				g.connector("NY", ["London"]);
-				g.connector("London", ["Stuttgart"]);
-
-				observer.next(g);*/
-
 		});
 	}
 
-	retrieveDelta(since : number) : GraphNetworkUpdate {
-		return <GraphNetworkUpdate> {
+	activateDelta(since : number) : Observable<GraphNetworkUpdate> {
+		return Observable.create((observer) => {
+			this.conn.on('networkupdate', (update) => {
+				let nodesUpdated = 0, additiveNodes = [], additions = [], deletions = [], highlight = [];
+				for (let entry of update) {
+					for (let updateType in entry){
+						switch(updateType){
+							case "addNode": 
+								for (let el of entry[updateType]){
+									let node = {};
+									node[el.ip] = new CNode<Coords>(new Coords(el.x,el.y));
+									additiveNodes.push(node);
+								}
+							break;
+							case "highlightNode":
+								// todo highlightnode
+							break;
+							case "highlightEdge":
+								for (let el of entry[updateType]){
+									highlight.push(<GraphEdge> {from : el[0], to: el[1]});
+								}	
+							break;
+							case "addEdge":
+								for (let el of entry[updateType]){
+									console.log("in addEdge");
+									console.log(el);
+									additions.push(new GraphEdge(el[0], el[1], false, null));
+								}	
+
+							break;
+							case "rmNode":
+							//rmNode not yet implemented!
+								/*for (let el of entry[updateType]){
+							//todo bug in here
+									console.log("in rmNode");
+									console.log(el);
+									deletions.push(<GraphEdge> { from : el[0], to: el[1]});
+								}*/
+							break;
+						}
+					}
+				}
+				observer.next(<GraphNetworkUpdate> {
+					additiveNodes : additiveNodes, nodesUpdated: nodesUpdated,
+					additions:additions, deletions:deletions, highlight:highlight });
+			});
+		});
+		/*return <GraphNetworkUpdate> {
 			nodesUpdated: 3,
 			additiveNodes : [{"SanFrancisco" : new CNode<Coords>(new Coords(37.543589,-123.1674184))}],
 			additions: [
@@ -78,7 +112,7 @@ export class BackendService {
 					from: "London", to: "Stuttgart"
 				}
 			]
-		}
+		}*/
 	}
 }
 

@@ -55,18 +55,17 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 	}
 
 
-	displayNetworkUpdate(update : GraphNetworkUpdate, ofOriginal : GeoGraphNetwork){
+	displayNetworkUpdate(update : GraphNetworkUpdate){
 		// todo refactor this function so not so much mutable state is being
 		// thrown all around between map.component and displaynodes. Make Graphnetwork
 		// Immutable?
 		// Todo, update.additions o.ä, sollten keine GraphEdges sein, weil es keine
 		// GraphEdges sind, sondern suchkriterien für GeoGraphNetwork.nodeExists, und kriterien
 		// für erstellung der Edges. Stattdessen irgendeinen intermediate type benutzen!!!!!!!!
-
 		for (let addition of update.additiveNodes){
 			for (let nodeName in addition){
-				if (!ofOriginal.nodeExists(nodeName)){
-					ofOriginal.add(nodeName, addition[nodeName]);
+				if (!this.network.nodeExists(nodeName)){
+					this.network.add(nodeName, addition[nodeName]);
 					DisplayNodeUtils.displayNode(addition[nodeName], this.nodeFeatures);
 				} else {
 					// Todo once node highlighting is implemented: Do a highlight
@@ -77,10 +76,10 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 		}
 
 		for (let addedEdge of update.additions){
-			let edge = ofOriginal.findEdge(addedEdge);
+			let edge = this.network.findEdge(addedEdge);
 			if (edge === null){
-				edge = ofOriginal.connector(addedEdge.from, [addedEdge.to], false);
-				DisplayNodeUtils.displayEdgeRaw(edge, ofOriginal, this.nodeFeatures);
+				edge = this.network.connector(addedEdge.from, [addedEdge.to], false);
+				DisplayNodeUtils.displayEdgeRaw(edge, this.network, this.nodeFeatures);
 			} else {
 				// Todo: add a settings option that allows to turn this off.
 				console.log(`Edge ${edge} exists, highlighting instead.`);
@@ -138,6 +137,11 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 				this.notification('connection failed');
 			}
 		});
+
+		let deltas = this.backendService.activateDelta(0);
+		deltas.forEach((delta) => {
+			this.displayNetworkUpdate(delta);
+		});
 	}
 
 	notification(of){
@@ -167,8 +171,6 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 	btnDebug(){
 		document["map"] = this;
 		this.notification('Exposed Component to: document.map');
-		let delta = this.backendService.retrieveDelta(0);
-		this.displayNetworkUpdate(delta, this.network);
 	}
 
 	btnAddLocation(){

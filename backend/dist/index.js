@@ -13,7 +13,7 @@ var Backend = (function () {
         this.db = new neo4j.GraphDatabase("http://neo4j:admin@localhost:7474");
         this.route = express.Router();
         this.registerEndpoint = new register_1.RegisterEndpoint({ database: this.db });
-        this.propagateEndpoint = new propagate_1.PropagateEndpoint({ database: this.db });
+        this.propagateEndpoint = new propagate_1.PropagateEndpoint({ database: this.db, socket: io });
         this.getEndpoint = new get_1.GetEndpoint({ database: this.db });
         this.routeMap = [
             { "/:id/register": this.registerEndpoint },

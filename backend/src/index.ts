@@ -19,7 +19,7 @@ class Backend {
 	route = express.Router();
 
 	registerEndpoint 	= new RegisterEndpoint({ database : this.db });
-	propagateEndpoint 	= new PropagateEndpoint({ database : this.db });
+	propagateEndpoint 	= new PropagateEndpoint({ database : this.db, socket: io });
 	getEndpoint 		= new GetEndpoint({ database : this.db });
 
 	routeMap = [

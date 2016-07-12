@@ -165,8 +165,11 @@ var GeoGraphNetwork = (function (_super) {
             }
         }
         for (var _a = 0, socketObject_2 = socketObject; _a < socketObject_2.length; _a++) {
-            var relationship = socketObject_2[_a];
-            this.connector(relationship.r._fromId, [relationship.r._toId], false);
+            var node = socketObject_2[_a];
+            for (var _b = 0, _c = node.r; _b < _c.length; _b++) {
+                var relationship = _c[_b];
+                this.connector(relationship._fromId, [relationship._toId], false);
+            }
         }
         console.log("In constructFrom!");
         console.log(socketObject);

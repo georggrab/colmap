@@ -43,7 +43,7 @@ var MapComponent = (function (_super) {
             }),
         });
     }
-    MapComponent.prototype.displayNetworkUpdate = function (update, ofOriginal) {
+    MapComponent.prototype.displayNetworkUpdate = function (update) {
         // todo refactor this function so not so much mutable state is being
         // thrown all around between map.component and displaynodes. Make Graphnetwork
         // Immutable?
@@ -53,8 +53,8 @@ var MapComponent = (function (_super) {
         for (var _i = 0, _a = update.additiveNodes; _i < _a.length; _i++) {
             var addition = _a[_i];
             for (var nodeName in addition) {
-                if (!ofOriginal.nodeExists(nodeName)) {
-                    ofOriginal.add(nodeName, addition[nodeName]);
+                if (!this.network.nodeExists(nodeName)) {
+                    this.network.add(nodeName, addition[nodeName]);
                     displaynodes_1.DisplayNodeUtils.displayNode(addition[nodeName], this.nodeFeatures);
                 }
                 else {
@@ -66,10 +66,10 @@ var MapComponent = (function (_super) {
         }
         for (var _b = 0, _c = update.additions; _b < _c.length; _b++) {
             var addedEdge = _c[_b];
-            var edge = ofOriginal.findEdge(addedEdge);
+            var edge = this.network.findEdge(addedEdge);
             if (edge === null) {
-                edge = ofOriginal.connector(addedEdge.from, [addedEdge.to], false);
-                displaynodes_1.DisplayNodeUtils.displayEdgeRaw(edge, ofOriginal, this.nodeFeatures);
+                edge = this.network.connector(addedEdge.from, [addedEdge.to], false);
+                displaynodes_1.DisplayNodeUtils.displayEdgeRaw(edge, this.network, this.nodeFeatures);
             }
             else {
                 // Todo: add a settings option that allows to turn this off.
@@ -124,6 +124,10 @@ var MapComponent = (function (_super) {
                 _this.notification('connection failed');
             }
         });
+        var deltas = this.backendService.activateDelta(0);
+        deltas.forEach(function (delta) {
+            _this.displayNetworkUpdate(delta);
+        });
     };
     MapComponent.prototype.notification = function (of) {
         this.snackbarContainer.MaterialSnackbar.showSnackbar({
@@ -148,8 +152,6 @@ var MapComponent = (function (_super) {
     MapComponent.prototype.btnDebug = function () {
         document["map"] = this;
         this.notification('Exposed Component to: document.map');
-        var delta = this.backendService.retrieveDelta(0);
-        this.displayNetworkUpdate(delta, this.network);
     };
     MapComponent.prototype.btnAddLocation = function () {
         if (navigator.geolocation) {

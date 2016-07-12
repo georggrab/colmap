@@ -36,9 +36,11 @@ da die ergebnisse sofort gepusht werden.
 
 export class PropagateEndpoint implements Endpoint {
 	private db;
+	private io; 
 
 	constructor(options){
 		this.db = options.database;	
+		this.io = options.socket;
 	}
 
 	getRoute(req: Exp.Request, res: Exp.Response){
@@ -48,11 +50,16 @@ export class PropagateEndpoint implements Endpoint {
            nötig, in der neo4j Graphdatenbank ergänzt.
 		*/
 		let btc = [];
+		let iopushs = [];
 
 		if (req.body["highlightNode"]){
 			// (CNode)[] -> socket.io push to connected users
+			iopushs.push({highlightNode : req.body.highlightNode});
+
 		} if (req.body["highlightEdge"]){
 			// (CNode, CNode)[] -> socket.io push to connected users
+			iopushs.push({highlightEdge : req.body.highlightEdge});
+
 		} if (req.body["addNode"]){
 			// (CNode)[] -> neo4j graph addition; socket.io push to connected users
 			// Todo fail gracefully
@@ -65,6 +72,7 @@ export class PropagateEndpoint implements Endpoint {
 						ip: node.ip, x: node.x, y: node.y }
 				});
 			}
+			iopushs.push({addNode : req.body.addNode});
 			// returns (_nodeid)
 
 		} if (req.body["addEdge"]){
@@ -78,7 +86,9 @@ export class PropagateEndpoint implements Endpoint {
 					}
 				});
 			}
+			iopushs.push({addEdge : req.body.addEdge});
 			// returns (CNODE, CNODE)
+
 		} if (req.body["rmNode"]){
 			// (CNode)
 			for (let nodeid of req.body.rmNode){
@@ -89,12 +99,15 @@ export class PropagateEndpoint implements Endpoint {
 					}
 				});
 			}
+			iopushs.push({rmNode : req.body.rmNode});
 		}
 		
 		let streams = this.db.cypher({queries : btc}, (err, results) => {
 			console.log("Finished propagating: " + err);
 			res.json(results);
 		});
+
+		this.io.sockets.emit("networkupdate", iopushs);
 
 	}
 	getMethod() : string {

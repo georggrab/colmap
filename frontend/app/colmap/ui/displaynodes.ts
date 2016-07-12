@@ -116,8 +116,12 @@ export class DisplayNodeUtils {
 		let lastInsertion = node.type.getOl(Ol.proj.fromLonLat);
 		let feature = new Ol.Feature(new Ol.geom.Point(lastInsertion));
 		feature.setStyle(this.Display.NodeStyle);
-
-		pushOnto.push(feature);
+		try {
+			pushOnto.push(feature);
+		} catch (err) {
+			console.log("Unable to add this node to Collection (will not be displayed. Investigate!)");
+			console.log(node);
+		}
 		return lastInsertion;
 	}
 }

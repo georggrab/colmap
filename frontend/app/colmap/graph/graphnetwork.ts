@@ -161,8 +161,10 @@ export class GeoGraphNetwork extends GraphNetwork<Coords> implements ITransferOL
 					break;
 			}
 		}
-		for (let relationship of socketObject){
-			this.connector(relationship.r._fromId, [relationship.r._toId], false);
+		for (let node of socketObject){
+			for (let relationship of node.r){
+				this.connector(relationship._fromId, [relationship._toId], false);
+			}
 		}
 		console.log("In constructFrom!");
 		console.log(socketObject);
