@@ -11,11 +11,14 @@ import { BackendService } from './colmap/network/server';
 
 import { Observable } from 'rxjs/Observable';
 
+import { ToolTip } from './colmap/ui/tooltip.component';
+
 import * as Ol from 'openlayers';
 
 @Component({
 	selector: 'map',
 	templateUrl: 'app/map.component.html'
+	directives : [ToolTip]
 })
 export class MapComponent extends MaterialTemplate implements OnInit {
 	/* Databound Attributes: */

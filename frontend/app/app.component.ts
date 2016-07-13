@@ -9,6 +9,7 @@ import { CreateComponent } from './create.component';
 import { PerferenceService, CStorage } from './colmap/state/preferences';
 import { LocalStorage } from './colmap/state/storage/localstorage';
 import { BackendService } from './colmap/network/server'; 
+import { ToolTip } from './colmap/ui/tooltip.component';
 
 @Component({
 	selector: 'colmap-root',
@@ -19,6 +20,7 @@ import { BackendService } from './colmap/network/server';
 	providers: [
 		ROUTER_PROVIDERS,
 		PerferenceService,
+		ToolTip,
 		provide(CStorage, {useClass : LocalStorage}),
 		provide(BackendService, {useClass : BackendService})
 		

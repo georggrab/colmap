@@ -19,6 +19,7 @@ var material_1 = require('./material');
 var displaynodes_1 = require('./colmap/ui/displaynodes');
 var preferences_1 = require('./colmap/state/preferences');
 var server_1 = require('./colmap/network/server');
+var tooltip_component_1 = require('./colmap/ui/tooltip.component');
 var Ol = require('openlayers');
 var MapComponent = (function (_super) {
     __extends(MapComponent, _super);
@@ -284,7 +285,8 @@ var MapComponent = (function (_super) {
     MapComponent = __decorate([
         core_1.Component({
             selector: 'map',
-            templateUrl: 'app/map.component.html'
+            templateUrl: 'app/map.component.html',
+            directives: [tooltip_component_1.ToolTip]
         }), 
         __metadata('design:paramtypes', [router_deprecated_1.RouteParams, preferences_1.PerferenceService, server_1.BackendService])
     ], MapComponent);
