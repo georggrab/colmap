@@ -46,6 +46,7 @@ var MapComponent = (function (_super) {
         // track of somehow. pendingUndoHovers contains a list of
         // functions that undoes the change.
         this.pendingUndoHovers = new Set();
+        this.currentHover = undefined;
     }
     MapComponent.prototype.displayNetworkUpdate = function (update) {
         // todo refactor this function so not so much mutable state is being
@@ -240,15 +241,28 @@ var MapComponent = (function (_super) {
             var feature = _this.map.forEachFeatureAtPixel(pixel, function (feature) {
                 return feature;
             });
-            if (feature) {
+            if (feature && feature !== _this.currentHover) {
+                _this.currentHover = feature;
                 var settings_1 = new displaynodes_1.DisplaySettings();
                 if (feature.values_.geometry instanceof Ol.geom.Point) {
                     // and all connecting features. create relation here.
                     feature.setStyle(settings_1.NodeStyleHovering);
                     var node = feature.get("DataLink");
                     if (node) {
-                        console.log("Underlaying Node:");
                         console.log(node);
+                        var _loop_1 = function(edge) {
+                            var view = edge.getView();
+                            if (view) {
+                                view.setStyle(settings_1.EdgeStyleHovering);
+                                _this.pendingUndoHovers.add(function () {
+                                    view.setStyle(null);
+                                });
+                            }
+                        };
+                        for (var _i = 0, _a = node.connections; _i < _a.length; _i++) {
+                            var edge = _a[_i];
+                            _loop_1(edge);
+                        }
                     }
                     _this.pendingUndoHovers.add(function () {
                         feature.setStyle(settings_1.NodeStyle);
@@ -258,6 +272,7 @@ var MapComponent = (function (_super) {
                 }
             }
             else {
+                _this.currentHover = undefined;
                 _this.pendingUndoHovers.forEach(function (func) {
                     func();
                 });

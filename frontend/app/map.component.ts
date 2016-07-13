@@ -52,6 +52,7 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 	// track of somehow. pendingUndoHovers contains a list of
 	// functions that undoes the change.
 	pendingUndoHovers : Set<Object> = new Set<Object>();
+	currentHover = undefined;
 
 	constructor(private routeParams: RouteParams, 
 		private preferences : PerferenceService,
@@ -267,31 +268,36 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 			let pixel = this.map.getEventPixel(event.originalEvent);
 			let feature = this.map.forEachFeatureAtPixel(pixel, (feature) => {
 				return feature});
-			if (feature){
+			if (feature && feature !== this.currentHover){
+				this.currentHover = feature;
 				let settings = new DisplaySettings();
 
 				if (feature.values_.geometry instanceof Ol.geom.Point){
 					// and all connecting features. create relation here.
-					feature.setStyle(settings.NodeStyleHovering);
+					feature.setStyle(settings.NodeStyleHovering	);
 
 					let node = feature.get("DataLink");
 					if (node){
-						console.log("Underlaying Node:");
 						console.log(node);
+						for (let edge of node.connections){
+							let view = edge.getView();
+							if (view){
+								view.setStyle(settings.EdgeStyleHovering);
+								this.pendingUndoHovers.add(() => {
+									view.setStyle(null);
+								});
+							}
+						}
 					}
 
 					this.pendingUndoHovers.add(() => {
 						feature.setStyle(settings.NodeStyle);
 					});
 				} else if (feature.values_.geometry instanceof Ol.geom.LineString){
-					// does this make sense?
-					/*feature.setStyle(settings.EdgeStyleHovering);
-
-					this.pendingUndoHovers.add(() => {
-						feature.setStyle(settings.EdgeStyleNormal);
-					});*/
+					// Evaluate if this makes sense, vermutlich nicht..
 				}
 			} else {
+				this.currentHover = undefined;
 				this.pendingUndoHovers.forEach((func : () => void) => {
 					func();
 				})

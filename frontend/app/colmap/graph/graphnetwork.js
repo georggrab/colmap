@@ -112,12 +112,20 @@ var GraphNetwork = (function () {
         if (this.nodes.hasOwnProperty(node)) {
             for (var _i = 0, to_1 = to; _i < to_1.length; _i++) {
                 var connect = to_1[_i];
+                for (var _a = 0, _b = this.nodes[node].connections; _a < _b.length; _a++) {
+                    var connection = _b[_a];
+                    if (connection.to == connect) {
+                        console.log("Warning: Edge already exists! Ignoring this.");
+                        return;
+                    }
+                }
                 lastAddedEdge = new GraphEdge(node, connect, bidirectional, null);
                 this.nodes[node].connections.push(lastAddedEdge);
                 // TODO i'm not happy with this. Somehow, there must be a O(1) link between
                 // both directions of the GraphEdge. Cross Referencing properties maybe.
                 if (bidirectional) {
                     if (this.nodes.hasOwnProperty(connect)) {
+                        console.log("Adding something bidirectionally.");
                         // TODO Minimal spannender Baum?
                         var g_obsolete = new GraphEdge(connect, node, bidirectional, null);
                         this.nodes[connect].connections.push(g_obsolete);

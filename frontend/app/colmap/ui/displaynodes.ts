@@ -41,8 +41,8 @@ export class DisplaySettings {
 				color: 'gray', width: 1
 			}),
 			points: 9,
-			radius: 3,
-			radius2: 3,
+			radius: 4,
+			radius2: 4,
 			angle: 0
 		})
 	});
@@ -56,8 +56,8 @@ export class DisplaySettings {
 				color: 'gray', width: 1
 			}),
 			points: 9,
-			radius: 3,
-			radius2: 3,
+			radius: 4,
+			radius2: 4,
 			angle: 0
 		})
 

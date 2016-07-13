@@ -113,6 +113,14 @@ export class GraphNetwork<T> {
 		let lastAddedEdge : GraphEdge;
 		if (this.nodes.hasOwnProperty(node)){
 			for (let connect of to){
+				for (let connection of this.nodes[node].connections){
+					if (connection.to == connect){
+						console.log("Warning: Edge already exists! Ignoring this.");
+						return;
+					}
+				}
+
+
 				lastAddedEdge = new GraphEdge(node, connect, bidirectional, null);
 				this.nodes[node].connections.push(lastAddedEdge);
 
@@ -120,6 +128,7 @@ export class GraphNetwork<T> {
 				// both directions of the GraphEdge. Cross Referencing properties maybe.
 				if (bidirectional){
 					if (this.nodes.hasOwnProperty(connect)){
+						console.log("Adding something bidirectionally.");
 						// TODO Minimal spannender Baum?
 						let g_obsolete : GraphEdge = new GraphEdge(connect, node, bidirectional, null);
 						this.nodes[connect].connections.push(g_obsolete);
