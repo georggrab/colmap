@@ -30,10 +30,11 @@ var PropagateEndpoint = (function () {
         if (req.body["addEdge"]) {
             for (var _b = 0, _c = req.body.addEdge; _b < _c.length; _b++) {
                 var nodes = _c[_b];
+                console.log(nodes);
                 btc.push({
-                    query: "MATCH (r0:CNode), (r1:CNode) WHERE ID(r0)={id_a} AND ID(r1)={id_b}\n\t\t\t\t\t\tCREATE (r0)-[:HYPERLINKS]->(r1) RETURN r0,r1",
+                    query: "MATCH (r0:CNode), (r1:CNode) WHERE ID(r0)={firstnode} AND ID(r1)={secondnode}\n\t\t\t\t\t\tCREATE (r0)-[:HYPERLINKS]->(r1) RETURN r0,r1",
                     params: {
-                        id_a: nodes[0], id_b: nodes[1]
+                        "firstnode": nodes[0], "secondnode": nodes[1]
                     }
                 });
             }

@@ -76,8 +76,6 @@ var BackendService = (function () {
                             case "addEdge":
                                 for (var _e = 0, _f = entry[updateType]; _e < _f.length; _e++) {
                                     var el = _f[_e];
-                                    console.log("in addEdge");
-                                    console.log(el);
                                     additions.push(new graphnetwork_1.GraphEdge(el[0], el[1], false, null));
                                 }
                                 break;

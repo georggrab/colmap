@@ -42,6 +42,10 @@ var MapComponent = (function (_super) {
                 features: this.edgeFeatures
             }),
         });
+        // Features that are highlighted via hover must be kept
+        // track of somehow. pendingUndoHovers contains a list of
+        // functions that undoes the change.
+        this.pendingUndoHovers = new Set();
     }
     MapComponent.prototype.displayNetworkUpdate = function (update) {
         // todo refactor this function so not so much mutable state is being
@@ -213,6 +217,7 @@ var MapComponent = (function (_super) {
         });
     };
     MapComponent.prototype.ngOnInit = function () {
+        var _this = this;
         var gotId = this.routeParams.get('mapid');
         this.bw = window.innerWidth;
         this.bh = window.innerHeight;
@@ -229,6 +234,35 @@ var MapComponent = (function (_super) {
                 minZoom: 3, maxZoom: 20
             }),
             controls: new Ol.Collection([]),
+        });
+        this.map.on('pointermove', function (event) {
+            var pixel = _this.map.getEventPixel(event.originalEvent);
+            var feature = _this.map.forEachFeatureAtPixel(pixel, function (feature) {
+                return feature;
+            });
+            if (feature) {
+                var settings_1 = new displaynodes_1.DisplaySettings();
+                if (feature.values_.geometry instanceof Ol.geom.Point) {
+                    // and all connecting features. create relation here.
+                    feature.setStyle(settings_1.NodeStyleHovering);
+                    var node = feature.get("DataLink");
+                    if (node) {
+                        console.log("Underlaying Node:");
+                        console.log(node);
+                    }
+                    _this.pendingUndoHovers.add(function () {
+                        feature.setStyle(settings_1.NodeStyle);
+                    });
+                }
+                else if (feature.values_.geometry instanceof Ol.geom.LineString) {
+                }
+            }
+            else {
+                _this.pendingUndoHovers.forEach(function (func) {
+                    func();
+                });
+                _this.pendingUndoHovers.clear();
+            }
         });
         this.addClickHandler(this.map);
     };

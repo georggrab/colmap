@@ -24,6 +24,14 @@ export class DisplaySettings {
 		})
 	}); 
 
+	public EdgeStyleHovering : Ol.style.Style = new Ol.style.Style({
+		stroke: new Ol.style.Stroke({
+			color:'rgba(250,50,5,0.6)', 
+			width:2,
+			lineDash : [5,5]
+		})
+	}); 
+
 	public NodeStyle : Ol.style.Style = new Ol.style.Style({
 		image : new Ol.style.RegularShape({
 			fill : new Ol.style.Fill({
@@ -38,6 +46,22 @@ export class DisplaySettings {
 			angle: 0
 		})
 	});
+
+	public NodeStyleHovering : Ol.style.Style = new Ol.style.Style({
+		image : new Ol.style.RegularShape({
+			fill : new Ol.style.Fill({
+				color: 'rgba(230,50,30,0.6)'
+			}),
+			stroke : new Ol.style.Stroke({
+				color: 'gray', width: 1
+			}),
+			points: 9,
+			radius: 3,
+			radius2: 3,
+			angle: 0
+		})
+
+	})
 } 
 
 export class DisplayNodeUtils {
@@ -116,6 +140,7 @@ export class DisplayNodeUtils {
 		let lastInsertion = node.type.getOl(Ol.proj.fromLonLat);
 		let feature = new Ol.Feature(new Ol.geom.Point(lastInsertion));
 		feature.setStyle(this.Display.NodeStyle);
+		feature.set("DataLink", node);
 		try {
 			pushOnto.push(feature);
 		} catch (err) {

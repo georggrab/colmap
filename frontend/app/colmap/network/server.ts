@@ -72,10 +72,8 @@ export class BackendService {
 							break;
 							case "addEdge":
 								for (let el of entry[updateType]){
-									console.log("in addEdge");
-									console.log(el);
 									additions.push(new GraphEdge(el[0], el[1], false, null));
-								}	
+								}
 
 							break;
 							case "rmNode":

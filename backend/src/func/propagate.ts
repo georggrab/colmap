@@ -10,10 +10,10 @@ POST /map/<id>/propagate
 {
     "addNode" : [
             {
-                "ip":"222.222.222.222", "x":"123.3","y":"444.4"
+                "ip":"222.222.222.222", "x":123.3,"y":444.4
             },
             {
-                "ip":"232.232.232.232", "x":"123.3","y":"444.4"
+                "ip":"232.232.232.232", "x":123.3,"y":444.4
             }
         ],
     "addEdge" : [
@@ -78,11 +78,12 @@ export class PropagateEndpoint implements Endpoint {
 		} if (req.body["addEdge"]){
 			// (CNode, CNode)[] -> neo4j graph addition; socket.io push to connected users
 			for (let nodes of req.body.addEdge){
+				console.log(nodes);
 				btc.push({
-					query: `MATCH (r0:CNode), (r1:CNode) WHERE ID(r0)={id_a} AND ID(r1)={id_b}
+					query: `MATCH (r0:CNode), (r1:CNode) WHERE ID(r0)={firstnode} AND ID(r1)={secondnode}
 						CREATE (r0)-[:HYPERLINKS]->(r1) RETURN r0,r1`,
 					params: {
-						id_a : nodes[0], id_b : nodes[1]
+						"firstnode" : nodes[0], "secondnode" : nodes[1]
 					}
 				});
 			}

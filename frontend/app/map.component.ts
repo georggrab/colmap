@@ -5,7 +5,7 @@ import { MaterialTemplate } from './material';
 import { GeoGraphNetwork, COLConnectionInfo, 
 	GraphNetworkHealth, Coords, CNode, GraphEdge,
 	GraphNetworkUpdate } from './colmap/graph/graphnetwork';
-import { DisplayNodeUtils } from './colmap/ui/displaynodes';
+import { DisplayNodeUtils, DisplaySettings } from './colmap/ui/displaynodes';
 import { PerferenceService } from './colmap/state/preferences';
 import { BackendService } from './colmap/network/server';
 
@@ -47,6 +47,11 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 			features: this.edgeFeatures
 		}),
 	});
+
+	// Features that are highlighted via hover must be kept
+	// track of somehow. pendingUndoHovers contains a list of
+	// functions that undoes the change.
+	pendingUndoHovers : Set<Object> = new Set<Object>();
 
 	constructor(private routeParams: RouteParams, 
 		private preferences : PerferenceService,
@@ -257,6 +262,42 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 			}),
 			controls: new Ol.Collection([]),
 		});
+
+		this.map.on('pointermove', (event) => {
+			let pixel = this.map.getEventPixel(event.originalEvent);
+			let feature = this.map.forEachFeatureAtPixel(pixel, (feature) => {
+				return feature});
+			if (feature){
+				let settings = new DisplaySettings();
+
+				if (feature.values_.geometry instanceof Ol.geom.Point){
+					// and all connecting features. create relation here.
+					feature.setStyle(settings.NodeStyleHovering);
+
+					let node = feature.get("DataLink");
+					if (node){
+						console.log("Underlaying Node:");
+						console.log(node);
+					}
+
+					this.pendingUndoHovers.add(() => {
+						feature.setStyle(settings.NodeStyle);
+					});
+				} else if (feature.values_.geometry instanceof Ol.geom.LineString){
+					// does this make sense?
+					/*feature.setStyle(settings.EdgeStyleHovering);
+
+					this.pendingUndoHovers.add(() => {
+						feature.setStyle(settings.EdgeStyleNormal);
+					});*/
+				}
+			} else {
+				this.pendingUndoHovers.forEach((func : () => void) => {
+					func();
+				})
+				this.pendingUndoHovers.clear();
+			}
+		})
 
 		this.addClickHandler(this.map);
 	}
