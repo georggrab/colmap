@@ -15,19 +15,52 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var core_1 = require('@angular/core');
 var material_1 = require('./../../material');
+var ToIterable = (function () {
+    function ToIterable() {
+    }
+    ToIterable.prototype.transform = function (dict) {
+        var a = [];
+        for (var key in dict) {
+            if (dict.hasOwnProperty(key)) {
+                a.push({ key: key, val: dict[key] });
+            }
+        }
+        return a;
+    };
+    ToIterable = __decorate([
+        core_1.Pipe({ name: 'toIterable' }), 
+        __metadata('design:paramtypes', [])
+    ], ToIterable);
+    return ToIterable;
+}());
+exports.ToIterable = ToIterable;
 var ToolTip = (function (_super) {
     __extends(ToolTip, _super);
     function ToolTip() {
         _super.call(this);
+        this.show = false;
     }
     Object.defineProperty(ToolTip.prototype, "display", {
         set: function (display) {
-            console.log("Tooltip got something!");
             this._display = display;
+            if (display && this.map) {
+                var coords = display.getGeometry().getCoordinates();
+                var pixel = this.map.getPixelFromCoordinate(coords);
+                this.left = pixel[0], this.top = pixel[1];
+                var cnode = display.get("DataLink");
+                if (cnode) {
+                    this.underlyingNode = cnode;
+                }
+                this.show = true;
+            }
         },
         enumerable: true,
         configurable: true
     });
+    __decorate([
+        core_1.Input(), 
+        __metadata('design:type', Object)
+    ], ToolTip.prototype, "map", void 0);
     __decorate([
         core_1.Input(), 
         __metadata('design:type', Object), 
@@ -36,7 +69,8 @@ var ToolTip = (function (_super) {
     ToolTip = __decorate([
         core_1.Component({
             selector: 'tooltip',
-            templateUrl: 'app/colmap/ui/tooltip.component.html'
+            templateUrl: 'app/colmap/ui/tooltip.component.html',
+            pipes: [ToIterable]
         }), 
         __metadata('design:paramtypes', [])
     ], ToolTip);

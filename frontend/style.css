@@ -75,3 +75,9 @@ map {
   /* This background is dark, so we set text to white. Use 87% black instead if
      your background is light. */
   color: white; }
+
+#tooltip {
+  position: absolute;
+  z-index: 5;
+  font-family: courier;
+  font-weight: bold; }

@@ -1,3 +1,23 @@
-<div class="tooltip">
-	<h1>test!</h1>
+<div 
+    *ngIf="show"
+    [style.left.px]="left + 20"
+    [style.top.px]="top + 20"
+    id="tooltip"
+ 
+ >
+	<header>INTERNAL CNODE INFORMATION</header>
+	<table class="mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp">
+		<thead>
+			<tr>
+				<th class="mdl-data-table__cell--non-numeric">Internal Key</th>
+				<th>Internal Value</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr *ngFor="let keyval of underlyingNode | toIterable">
+				<td class="mdl-data-table__cell--non-numeric">{{keyval.key}}</td>
+				<td>{{keyval.val}}</td>
+			</tr>
+		</tbody>
+	</table>
 </div>

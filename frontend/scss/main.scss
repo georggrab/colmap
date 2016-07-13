@@ -97,3 +97,11 @@ map{
      your background is light. */
   color: white;
 }
+
+
+#tooltip {
+	position :absolute;
+	z-index:5;
+	font-family: courier;
+	font-weight:bold;	
+}

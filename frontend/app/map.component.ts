@@ -17,7 +17,7 @@ import * as Ol from 'openlayers';
 
 @Component({
 	selector: 'map',
-	templateUrl: 'app/map.component.html'
+	templateUrl: 'app/map.component.html',
 	directives : [ToolTip]
 })
 export class MapComponent extends MaterialTemplate implements OnInit {
