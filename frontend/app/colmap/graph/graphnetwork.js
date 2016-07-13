@@ -17,6 +17,14 @@ var Coords = (function () {
         this.longitude = longitude;
         this.latitude = latitude;
     }
+    Coords.prototype.toString = function () {
+        /* toString() wird beim anzeigen der internen Knoteninformationen benutzt.
+        daher wird hier ein link zu gmaps ausgegeben (requirement von Dozenten)
+        */
+        // http://stackoverflow.com/questions/6582834/use-a-url-to-link-to-a-google-map-with-a-marker-on-it
+        // TODO external gmaps zoom level könnte ein setting sein
+        return "<a target=\"_blank\" href=\"http://maps.google.com/maps/place/" + this.latitude + "+" + this.longitude + "/\n\t\t\t\t@" + this.latitude + "," + this.longitude + ",8z\">\n\t\t\t\tCoords<[" + this.latitude + ", " + this.longitude + "]>\n\t\t\t</a>";
+    };
     Coords.prototype.getOl = function (mapFunc) {
         var things = [this.latitude, this.longitude];
         if (mapFunc !== undefined)
@@ -51,6 +59,9 @@ var GraphEdge = (function () {
         this.bidirectional = bidirectional;
         this.meta = meta;
     }
+    GraphEdge.prototype.toString = function () {
+        return "[" + this.from + "]-[" + this.to + "]";
+    };
     GraphEdge.prototype.getLineCoords = function (on, mapFunc) {
         var coords = [
             on.nodes[this.from].type.getOl(),

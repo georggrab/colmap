@@ -7,13 +7,25 @@ interface ITransferOL {
 
 export class CNode<T>{
 	constructor (public type : T){
-
 	}
 	connections: GraphEdge[] = [];
+
     data: any;
 }
 
 export class Coords {
+	toString() : string {
+		/* toString() wird beim anzeigen der internen Knoteninformationen benutzt.
+		daher wird hier ein link zu gmaps ausgegeben (requirement von Dozenten)
+		*/
+		// http://stackoverflow.com/questions/6582834/use-a-url-to-link-to-a-google-map-with-a-marker-on-it
+		// TODO external gmaps zoom level könnte ein setting sein
+		return `<a target="_blank" href="http://maps.google.com/maps/place/${this.latitude}+${this.longitude}/
+				@${this.latitude},${this.longitude},8z">
+				Coords<[${this.latitude}, ${this.longitude}]>
+			</a>`;
+	}
+
 	getOl(mapFunc?:any) : Coordinate {
 		let things = [this.latitude, this.longitude];
 		if (mapFunc !== undefined) things = mapFunc(things);
@@ -45,6 +57,10 @@ export class GraphNetworkUpdate {
 
 export class GraphEdge {
 	view : any;
+
+	toString() : string {
+		return `[${this.from}]-[${this.to}]`;
+	}
 
 	constructor(public from : string,
 		public to: string,

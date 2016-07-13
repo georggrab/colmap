@@ -16,7 +16,7 @@
 		<tbody>
 			<tr *ngFor="let keyval of underlyingNode | toIterable">
 				<td class="mdl-data-table__cell--non-numeric">{{keyval.key}}</td>
-				<td>{{keyval.val}}</td>
+				<td [innerHTML]="keyval.val"></td>
 			</tr>
 		</tbody>
 	</table>
