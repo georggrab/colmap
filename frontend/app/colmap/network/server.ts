@@ -10,6 +10,8 @@ import * as io from 'socket.io-client';
 @Injectable()
 export class BackendService {
 	conn : any;
+	serviceMap : Map<string, Object> = new Map<string, Object>();
+
 
 	connect(endpoint : string) : Observable<COLConnectionInfo> {
 		this.conn = io.connect('http://127.0.0.1:3001');
@@ -17,7 +19,6 @@ export class BackendService {
 		this.conn.on('connect', () => {
 			console.log("Socket.IO: Connected to server!");
 		})
-
 
 		return Observable.create((observer) => {
 			this.conn.on('connect', () => {
@@ -28,10 +29,18 @@ export class BackendService {
 
 			this.conn.on('connectioninfo', (things) => {
 				observer.next(<COLConnectionInfo> {
-					connected : true,
 					connectedUsers : things.users
 				});
 			});
+
+			this.conn.on('servicepropagating', (serviceInfo) => {
+				console.log(serviceInfo);
+				this.serviceMap.set(serviceInfo.s._id, serviceInfo.s);
+				observer.next(<COLConnectionInfo> {
+					connectedServices : this.serviceMap.size,
+					allServices : this.serviceMap
+				})
+			})
 		});
 	}
 

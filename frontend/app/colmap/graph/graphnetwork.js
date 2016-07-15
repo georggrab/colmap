@@ -186,10 +186,10 @@ var GeoGraphNetwork = (function (_super) {
         for (var _a = 0, socketObject_2 = socketObject; _a < socketObject_2.length; _a++) {
             var node = socketObject_2[_a];
             //for (let relationship of node.r){
-            this.connector(node.r._fromId, [node.r._toId], false);
+            if (node.r) {
+                this.connector(node.r._fromId, [node.r._toId], false);
+            }
         }
-        console.log("In constructFrom!");
-        console.log(socketObject);
         return;
     };
     GeoGraphNetwork.prototype.transfer = function () {

@@ -14,6 +14,7 @@ var Observable_1 = require('rxjs/Observable');
 var io = require('socket.io-client');
 var BackendService = (function () {
     function BackendService() {
+        this.serviceMap = new Map();
     }
     BackendService.prototype.connect = function (endpoint) {
         var _this = this;
@@ -29,8 +30,15 @@ var BackendService = (function () {
             });
             _this.conn.on('connectioninfo', function (things) {
                 observer.next({
-                    connected: true,
                     connectedUsers: things.users
+                });
+            });
+            _this.conn.on('servicepropagating', function (serviceInfo) {
+                console.log(serviceInfo);
+                _this.serviceMap.set(serviceInfo.s._id, serviceInfo.s);
+                observer.next({
+                    connectedServices: _this.serviceMap.size,
+                    allServices: _this.serviceMap
                 });
             });
         });

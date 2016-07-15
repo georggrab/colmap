@@ -84,7 +84,7 @@ var PropagateEndpoint = (function () {
                     return res.json({ error: error });
                 }
                 if (result.length >= 1) {
-                    _this.io.sockets.emit("socketemitting", result[0]);
+                    _this.io.sockets.emit("servicepropagating", result[0]);
                     _this.updateServiceMeta(req.body.serviceid);
                     _this.propagate(req, res, req.body.serviceid);
                 }

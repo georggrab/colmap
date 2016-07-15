@@ -133,21 +133,24 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 
 
 	connect(){
-		// socket connection logic here..
 		let source : Observable<COLConnectionInfo> = this.backendService.connect(this.mapid);
 		source.forEach(connectionInfo => {
 			if (connectionInfo.connected){
-				this.notification('connected to ' + this.mapid);
-				this.connectedUsers = connectionInfo.connectedUsers;
-				this.connectedServices = connectionInfo.connectedServices;
-
-				if (this.lastNetworkHealth === null){
-					this.lastNetworkHealth = connectionInfo.networkHealth;
-					this.buildNetworkInitial(this.backendService.downloadNetwork());
-				}
-
+				this.notification('connected to ' + this.mapid); 
 			} else {
-				this.notification('connection failed');
+				if (connectionInfo.connected === false){
+					return this.notification('connection failed');
+				}
+			}
+			if (connectionInfo.connectedUsers){
+				this.connectedUsers = connectionInfo.connectedUsers;
+			}
+			if (connectionInfo.connectedServices){
+				this.connectedServices = connectionInfo.connectedServices;
+			}
+			if (this.lastNetworkHealth === null){
+				this.lastNetworkHealth = connectionInfo.networkHealth;
+				this.buildNetworkInitial(this.backendService.downloadNetwork());
 			}
 		});
 

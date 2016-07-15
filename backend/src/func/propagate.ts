@@ -145,7 +145,7 @@ export class PropagateEndpoint implements Endpoint {
 			}, (error, result) => {
 				if (error) { return res.json({error : error}); }
 				if (result.length >= 1){
-					this.io.sockets.emit("socketemitting", result[0]);
+					this.io.sockets.emit("servicepropagating", result[0]);
 					this.updateServiceMeta(req.body.serviceid);
 					this.propagate(req, res, req.body.serviceid);
 				} else {

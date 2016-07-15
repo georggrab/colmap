@@ -39,6 +39,7 @@ export class COLConnectionInfo {
 	connected : boolean;
 	connectedUsers : number;
 	connectedServices : number;
+	allServices : Map<string, Object>;
 	networkHealth : GraphNetworkHealth;
 }
 
@@ -188,11 +189,11 @@ export class GeoGraphNetwork extends GraphNetwork<Coords> implements ITransferOL
 		}
 		for (let node of socketObject){
 			//for (let relationship of node.r){
-				this.connector(node.r._fromId, [node.r._toId], false);
+				if (node.r){
+					this.connector(node.r._fromId, [node.r._toId], false);
+				}
 			//}
 		}
-		console.log("In constructFrom!");
-		console.log(socketObject);
 		return;
 	}
 

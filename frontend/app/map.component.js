@@ -116,20 +116,25 @@ var MapComponent = (function (_super) {
     };
     MapComponent.prototype.connect = function () {
         var _this = this;
-        // socket connection logic here..
         var source = this.backendService.connect(this.mapid);
         source.forEach(function (connectionInfo) {
             if (connectionInfo.connected) {
                 _this.notification('connected to ' + _this.mapid);
-                _this.connectedUsers = connectionInfo.connectedUsers;
-                _this.connectedServices = connectionInfo.connectedServices;
-                if (_this.lastNetworkHealth === null) {
-                    _this.lastNetworkHealth = connectionInfo.networkHealth;
-                    _this.buildNetworkInitial(_this.backendService.downloadNetwork());
-                }
             }
             else {
-                _this.notification('connection failed');
+                if (connectionInfo.connected === false) {
+                    return _this.notification('connection failed');
+                }
+            }
+            if (connectionInfo.connectedUsers) {
+                _this.connectedUsers = connectionInfo.connectedUsers;
+            }
+            if (connectionInfo.connectedServices) {
+                _this.connectedServices = connectionInfo.connectedServices;
+            }
+            if (_this.lastNetworkHealth === null) {
+                _this.lastNetworkHealth = connectionInfo.networkHealth;
+                _this.buildNetworkInitial(_this.backendService.downloadNetwork());
             }
         });
         var deltas = this.backendService.activateDelta(0);
