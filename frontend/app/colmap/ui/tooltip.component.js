@@ -65,7 +65,10 @@ var ToolTip = (function (_super) {
                 var coords = display.getGeometry().getCoordinates();
                 var pixel = this.map.getPixelFromCoordinate(coords);
                 // -64px: Header.
-                this.left = pixel[0], this.top = pixel[1] - 64;
+                this.left = pixel[0], this.top = pixel[1];
+                if (window.innerWidth > 1020) {
+                    this.top -= 64;
+                }
                 var cnode = display.get("DataLink");
                 if (cnode) {
                     this.underlyingNode = cnode;

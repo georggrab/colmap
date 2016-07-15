@@ -47,7 +47,10 @@ export class ToolTip extends MaterialTemplate {
 			let pixel = this.map.getPixelFromCoordinate(coords);
 
 			// -64px: Header.
-			this.left = pixel[0], this.top = pixel[1] - 64;
+			this.left = pixel[0], this.top = pixel[1];
+			if (window.innerWidth > 1020){
+				this.top -= 64;
+			}
 
 			let cnode = display.get("DataLink");
 			if (cnode){
