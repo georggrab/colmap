@@ -43,6 +43,8 @@ var MapComponent = (function (_super) {
                 features: this.edgeFeatures
             }),
         });
+        // Toggle button in header
+        this.graphtoggle = false;
         // Features that are highlighted via hover must be kept
         // track of somehow. pendingUndoHovers contains a list of
         // functions that undoes the change.
@@ -143,27 +145,31 @@ var MapComponent = (function (_super) {
             actionText: 'OK'
         });
     };
-    MapComponent.prototype.mapAddCoords = function (position) {
-        var pos = Ol.proj.fromLonLat([position.coords.longitude, position.coords.latitude], null);
-        this.notification('LON=' + position.coords.longitude);
-        var marker = new Ol.Overlay({
-            position: pos,
-            positioning: 'center-center',
-            element: document.getElementById('marker-own-location'),
-            stopEvent: false
-        });
-        this.map.addOverlay(marker);
-    };
     // TODO remove debug function
     MapComponent.prototype.btnDebug = function () {
         document["map"] = this;
         this.notification('Exposed Component to: document.map');
     };
-    MapComponent.prototype.btnAddLocation = function () {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(this.mapAddCoords.bind(this));
+    MapComponent.prototype.btnToggled = function () {
+        this.graphtoggle = !this.graphtoggle;
+        var layers = this.map.getLayers();
+        if (this.graphtoggle) {
+            // Deactivate Map Layers
+            for (var _i = 0, _a = layers.getArray(); _i < _a.length; _i++) {
+                var layer = _a[_i];
+                if (layer instanceof Ol.layer.Tile) {
+                    layer.setOpacity(0);
+                }
+            }
         }
         else {
+            // Reactivate Map Layers
+            for (var _b = 0, _c = layers.getArray(); _b < _c.length; _b++) {
+                var layer = _c[_b];
+                if (layer instanceof Ol.layer.Tile) {
+                    layer.setOpacity(1);
+                }
+            }
         }
     };
     MapComponent.prototype.provider = function (olSource, apply) {

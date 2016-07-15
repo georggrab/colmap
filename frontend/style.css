@@ -72,12 +72,32 @@ map {
 
 .map-layout-transparent .mdl-layout__header,
 .map-layout-transparent .mdl-layout__drawer-button {
-  /* This background is dark, so we set text to white. Use 87% black instead if
-     your background is light. */
   color: white; }
+
+.mdl-switch.is-checked .mdl-switch__thumb {
+  background: #ff4081 !important; }
+
+.mdl-switch.is-checked .mdl-switch__track {
+  background: rgba(255, 94, 179, 0.7) !important; }
 
 #tooltip {
   position: absolute;
   z-index: 5;
   font-family: courier;
-  font-weight: bold; }
+  font-weight: bold;
+  opacity: 0.4;
+  transition: all 0.5s; }
+  #tooltip .internal {
+    margin-left: 20px;
+    position: absolute; }
+  #tooltip .external {
+    position: absolute;
+    left: -270px;
+    top: -180px; }
+  #tooltip #arr-upper {
+    position: absolute;
+    top: -140px;
+    left: -35px; }
+
+#tooltip:hover {
+  opacity: 1; }

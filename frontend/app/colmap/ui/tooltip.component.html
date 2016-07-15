@@ -1,23 +1,45 @@
 <div 
     *ngIf="show"
-    [style.left.px]="left + 20"
-    [style.top.px]="top + 20"
+    [style.left.px]="left"
+    [style.top.px]="top"
     id="tooltip"
  
  >
-	<header>INTERNAL CNODE INFORMATION</header>
-	<table class="mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp">
-		<thead>
-			<tr>
-				<th class="mdl-data-table__cell--non-numeric">Internal Key</th>
-				<th>Internal Value</th>
-			</tr>
-		</thead>
-		<tbody>
-			<tr *ngFor="let keyval of underlyingNode | toIterable">
-				<td class="mdl-data-table__cell--non-numeric">{{keyval.key}}</td>
-				<td [innerHTML]="keyval.val"></td>
-			</tr>
-		</tbody>
-	</table>
+ 	<img src="drawing.svg" width="130px" height="50px"/>	
+ 	<main class="internal">
+		<header>INTERNAL CNODE INFORMATION</header>
+		<table class="mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp">
+			<thead>
+				<tr>
+					<th class="mdl-data-table__cell--non-numeric">Internal Key</th>
+					<th>Internal Value</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let keyval of underlyingNode | toIterable">
+					<td class="mdl-data-table__cell--non-numeric">{{keyval.key}}</td>
+					<td [innerHTML]="keyval.val"></td>
+				</tr>
+			</tbody>
+		</table>
+	</main>
+ 	<img id="arr-upper" src="drawing-1.svg" width="35px" height="130px"/>	
+	<main class="external">
+		<header>OUTGOING CONNECTIONS</header>
+		<table width="236px" class="mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp">
+			<thead>
+				<tr>
+					<th class="mdl-data-table__cell--non-numeric">n</th>
+					<th>weight</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let keyval of underlyingNode | toConnections; let i=index">
+					<td class="mdl-data-table__cell--non-numeric">connection[{{i}}]</td>
+					<td>(nil)</td>
+				</tr>
+			</tbody>
+		</table>
+		
+	</main>
 </div>

@@ -34,6 +34,24 @@ var ToIterable = (function () {
     return ToIterable;
 }());
 exports.ToIterable = ToIterable;
+var ToConnections = (function () {
+    function ToConnections() {
+    }
+    ToConnections.prototype.transform = function (node) {
+        if (node && node.hasOwnProperty("connections")) {
+            return node["connections"];
+        }
+        else {
+            return [];
+        }
+    };
+    ToConnections = __decorate([
+        core_1.Pipe({ name: 'toConnections' }), 
+        __metadata('design:paramtypes', [])
+    ], ToConnections);
+    return ToConnections;
+}());
+exports.ToConnections = ToConnections;
 var ToolTip = (function (_super) {
     __extends(ToolTip, _super);
     function ToolTip() {
@@ -46,7 +64,8 @@ var ToolTip = (function (_super) {
             if (display && this.map) {
                 var coords = display.getGeometry().getCoordinates();
                 var pixel = this.map.getPixelFromCoordinate(coords);
-                this.left = pixel[0], this.top = pixel[1];
+                // -64px: Header.
+                this.left = pixel[0], this.top = pixel[1] - 64;
                 var cnode = display.get("DataLink");
                 if (cnode) {
                     this.underlyingNode = cnode;
@@ -70,7 +89,7 @@ var ToolTip = (function (_super) {
         core_1.Component({
             selector: 'tooltip',
             templateUrl: 'app/colmap/ui/tooltip.component.html',
-            pipes: [ToIterable]
+            pipes: [ToIterable, ToConnections]
         }), 
         __metadata('design:paramtypes', [])
     ], ToolTip);

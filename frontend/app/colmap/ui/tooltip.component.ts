@@ -15,10 +15,20 @@ import { MapComponent } from './../../map.component';
 	}
 }
 
+@Pipe({ name: 'toConnections'}) export class ToConnections {
+	transform(node : Object) : Array<Object> {
+		if (node && node.hasOwnProperty("connections")){
+			return node["connections"];
+		} else {
+			return [];
+		}
+	}
+}
+
 @Component({
 	selector: 'tooltip',
 	templateUrl: 'app/colmap/ui/tooltip.component.html',
-	pipes : [ToIterable]
+	pipes : [ToIterable, ToConnections]
 })
 export class ToolTip extends MaterialTemplate {
 	private _display:Object;
@@ -36,7 +46,8 @@ export class ToolTip extends MaterialTemplate {
 			let coords = display.getGeometry().getCoordinates();
 			let pixel = this.map.getPixelFromCoordinate(coords);
 
-			this.left = pixel[0], this.top = pixel[1];
+			// -64px: Header.
+			this.left = pixel[0], this.top = pixel[1] - 64;
 
 			let cnode = display.get("DataLink");
 			if (cnode){

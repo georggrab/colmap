@@ -51,6 +51,10 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 		}),
 	});
 
+	// Toggle button in header
+	graphtoggle : boolean = false;
+	layersStore : Ol.Collection<Ol.layer.Layer>;
+
 	// Features that are highlighted via hover must be kept
 	// track of somehow. pendingUndoHovers contains a list of
 	// functions that undoes the change.
@@ -164,30 +168,30 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 	}
 
 
-	mapAddCoords(position){
-		var pos = Ol.proj.fromLonLat([position.coords.longitude, position.coords.latitude], null);
-		this.notification('LON='+position.coords.longitude);
-		var marker = new Ol.Overlay({
-			position: pos
-		  , positioning: 'center-center'
-			, element: document.getElementById('marker-own-location')		
-			, stopEvent: false
-		});
-		this.map.addOverlay(marker);
-	}
-
 	// TODO remove debug function
 	btnDebug(){
 		document["map"] = this;
 		this.notification('Exposed Component to: document.map');
 	}
 
-	btnAddLocation(){
-		if (navigator.geolocation) {
-			navigator.geolocation.getCurrentPosition(
-				this.mapAddCoords.bind(this));
-		} else {
+	btnToggled(){
+		this.graphtoggle = !this.graphtoggle;
+		let layers = this.map.getLayers();
 
+		if (this.graphtoggle){
+			// Deactivate Map Layers
+			for (let layer of layers.getArray()){
+				if (layer instanceof Ol.layer.Tile){
+					layer.setOpacity(0);
+				}
+			}
+		} else {
+			// Reactivate Map Layers
+			for (let layer of layers.getArray()){
+				if (layer instanceof Ol.layer.Tile){
+					layer.setOpacity(1);
+				}
+			}
 		}
 	}
 

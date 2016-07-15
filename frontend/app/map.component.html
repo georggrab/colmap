@@ -12,17 +12,18 @@
     <div class="mdl-layout-spacer"></div>
     <!-- Navigation -->
     <nav class="mdl-navigation">
-      <a class="mdl-navigation__link" href="">Link</a>
-      <a class="mdl-navigation__link" href="">Link</a>
-      <a class="mdl-navigation__link" href="">Link</a>
-      <a class="mdl-navigation__link" href="">Link</a>
+      <a class="mdl-navigation__link" href="">Chat</a>
+        <span style="margin-right:50px;" class="mdl-switch__label">GeoGraphnetwork</span>
+      <label for="switch1" class="mdl-switch mdl-js-switch">
+        <input (click)="btnToggled()" [(ngModel)]="graphtoggle" type="checkbox" id="switch1" class="mdl-switch__input">
+        <span class="mdl-switch__label">Graphnetwork</span>
+      </label>
     </nav>
   </div>
 </header>
 <div class="mdl-layout__drawer">
   <span class="mdl-layout-title">COLMAP</span>
   <nav class="mdl-navigation">
-    <a class="mdl-navigation__link" (click)="btnAddLocation()">add own location</a>
     <a class="mdl-navigation__link" (click)="btnDebug()">debug (expose2window)</a>
   </nav>
   <nav id="choose-tile-provider">
@@ -42,7 +43,6 @@
   </nav>
 </div>
 <main class="mdl-layout__content">
-  <div id="marker-own-location"></div>
   <div (window:resize)="onResize($event)" [style.width.px]="bw" [style.height.px]="bh" id="mmap" class="map-container"></div>
   <div id="map-snackbar" class="mdl-js-snackbar mdl-snackbar">
     <div class="mdl-snackbar__text"></div>
