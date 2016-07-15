@@ -11,9 +11,11 @@ export class GetEndpoint implements Endpoint {
 
 	get(callback) : void {
 		this.db.cypher({
-			query : "MATCH (n:CNode)-[r:HYPERLINKS*0..]-(m:CNode) RETURN n,r,m"
+			//query : "MATCH (n:CNode)-[r:HYPERLINKS*0..]-(m:CNode) RETURN n,r,m"
+			query : `MATCH (n:CNode)-[r:HYPERLINKS]-() RETURN n,r`
 		}, (err, results) => {
 			if (err) throw err;
+			debugger;
 			callback(results);
 		});
 

@@ -187,9 +187,9 @@ export class GeoGraphNetwork extends GraphNetwork<Coords> implements ITransferOL
 			}
 		}
 		for (let node of socketObject){
-			for (let relationship of node.r){
-				this.connector(relationship._fromId, [relationship._toId], false);
-			}
+			//for (let relationship of node.r){
+				this.connector(node.r._fromId, [node.r._toId], false);
+			//}
 		}
 		console.log("In constructFrom!");
 		console.log(socketObject);

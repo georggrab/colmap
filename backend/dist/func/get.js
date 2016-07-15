@@ -5,10 +5,11 @@ var GetEndpoint = (function () {
     }
     GetEndpoint.prototype.get = function (callback) {
         this.db.cypher({
-            query: "MATCH (n:CNode)-[r:HYPERLINKS*0..]-(m:CNode) RETURN n,r,m"
+            query: "MATCH (n:CNode)-[r:HYPERLINKS]-() RETURN n,r"
         }, function (err, results) {
             if (err)
                 throw err;
+            debugger;
             callback(results);
         });
     };
