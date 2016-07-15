@@ -60,7 +60,7 @@ var Backend = (function () {
     };
     return Backend;
 }());
-(function main() {
+(function main(errorRecursionDepth) {
     var b = new Backend();
     b.beginSocketServe();
     app.use(Bodyparser.json());
@@ -69,9 +69,13 @@ var Backend = (function () {
         console.log("Listening on http://127.0.0.1:3001");
     });
     process.on('uncaughtException', function (err) {
+        if (errorRecursionDepth > 10) {
+            console.error("Zu viele Fehler. Fix dein Programm, Georg!");
+            process.exit(1);
+        }
         console.warn("Something terrible happened! Exception:");
         console.warn(err);
         console.warn("Attempting to recover from Error...");
-        return main();
+        return main(errorRecursionDepth + 1);
     });
-})();
+})(0);

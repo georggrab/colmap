@@ -22,15 +22,28 @@ export class RegisterEndpoint implements Endpoint {
 		let key = this.generateAccessKey();
 
 		this.db.cypher({
-			query : "CREATE (n:Service{trigger: {trg}, type: {typ}, key : {key}})",
+			query : "CREATE (n:Service{trigger: {trg}, type: {typ}, key : {key}}) RETURN ID(n)",
 			params : {
 				trg : req.body.trigger,
 				typ : req.body.type,
 				key : key
 			}
 		}, (err, results) => {
-			if (err) throw err;
-			res.json(results);
+			if (err) {
+				// TODO Cypher Exceptions nicht an den Client schicken,
+				// da Sicherheitsrisiko. Falls Production entfernen.
+				res.json({
+					success : false,
+					error : err
+				}); 
+			} else {
+				res.json({
+					success : true,
+					error : false,
+					serviceAccessKey : key,
+					serviceID : results[0]["ID(n)"]
+				});
+			}
 		});
 	}
 	

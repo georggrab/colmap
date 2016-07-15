@@ -72,7 +72,7 @@ class Backend {
 }
 
 
-(function main(){
+(function main(errorRecursionDepth : number){
 	let b : Backend = new Backend();
 	b.beginSocketServe();
 
@@ -84,9 +84,14 @@ class Backend {
 	});
 
 	process.on('uncaughtException', (err) => {
+		if (errorRecursionDepth > 10){
+			console.error("Zu viele Fehler. Fix dein Programm, Georg!");
+			process.exit(1);
+		}
+
 		console.warn("Something terrible happened! Exception:");
 		console.warn(err);
 		console.warn("Attempting to recover from Error...");
-		return main();
+		return main(errorRecursionDepth + 1);
 	});
-})();
+})(0);

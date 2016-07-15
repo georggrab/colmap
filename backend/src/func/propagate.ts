@@ -43,7 +43,7 @@ export class PropagateEndpoint implements Endpoint {
 		this.io = options.socket;
 	}
 
-	getRoute(req: Exp.Request, res: Exp.Response){
+	propagate(req : Exp.Request, res : Exp.Response, serviceID : string){
 		/* propagate ist Haupteinstiegspunkt in die COLMAP Api für Services.
            CRUD operationen sind definiert.
            Änderungen werden via socket.io direkt an die User gepusht, und, falls
@@ -66,10 +66,14 @@ export class PropagateEndpoint implements Endpoint {
 			for (let node of req.body.addNode){
 				if (!Utils.defined(node, ["ip", "x", "y"])) return;
 				btc.push({
-					query: `CREATE (n:CNode{
-						ip: {ip}, x: {x}, y: {y}}) RETURN ID(n)`,
+					query: `MATCH (s:Service) WHERE ID(s)={serviceID}
+					CREATE (s)
+						-[:PROVIDED{lastUpdated:{lastUpdated}}]->
+					(n:CNode{ip: {ip}, x: {x}, y: {y}})
+					RETURN ID(n)`,
 					params: {
-						ip: node.ip, x: node.x, y: node.y }
+						ip: node.ip, x: node.x, y: node.y, serviceID: serviceID, 
+						lastUpdated: new Date().getTime()}
 				});
 			}
 			iopushs.push({addNode : req.body.addNode});
@@ -109,6 +113,48 @@ export class PropagateEndpoint implements Endpoint {
 		});
 
 		this.io.sockets.emit("networkupdate", iopushs);
+
+	}
+
+	updateServiceMeta(id : string){
+		this.db.cypher({
+			query: `MATCH (s:Service{id : {id}}) SET s.activity=s.activity + 1, s.lastActivity={lastActivity}`,
+			params: {
+				id : id,
+				lastActivity : new Date().getTime()
+			}
+		}, (error) => { console.warn(error) });
+	}
+
+	getRoute(req: Exp.Request, res: Exp.Response){
+		/* Zuerst wird der Service Authentifiziert.
+		   Wenn der Service erfolgreich authentifiziert wurde, wird der request
+		   and this.propagate() weitergeleitet und
+		   die Service-Metainformation an die verbundenen sockets gepusht.
+		   Danach wird das update an die verbundenen sockets gepusht.
+		*/
+		if (!Utils.defined(req.body, ["key", "serviceid"])) {
+			res.json({error : "Access Key and Service ID required for propagation!"});
+			return;
+		} else {
+			// Check validity of service access key.
+			console.log(req.body);
+			this.db.cypher({
+				query : `MATCH (s:Service) WHERE ID(s)={id} AND s.key={key} RETURN s`,
+				params : { key : req.body.key, id: req.body.serviceid }
+			}, (error, result) => {
+				if (error) { return res.json({error : error}); }
+				if (result.length >= 1){
+					this.io.sockets.emit("socketemitting", result[0]);
+					this.updateServiceMeta(req.body.serviceid);
+					this.propagate(req, res, req.body.serviceid);
+				} else {
+					return res.json({error : "Authentification Invalid."});
+				}
+
+			});	
+		}
+
 
 	}
 	getMethod() : string {

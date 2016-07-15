@@ -12,16 +12,27 @@ var RegisterEndpoint = (function () {
             return;
         var key = this.generateAccessKey();
         this.db.cypher({
-            query: "CREATE (n:Service{trigger: {trg}, type: {typ}, key : {key}})",
+            query: "CREATE (n:Service{trigger: {trg}, type: {typ}, key : {key}}) RETURN ID(n)",
             params: {
                 trg: req.body.trigger,
                 typ: req.body.type,
                 key: key
             }
         }, function (err, results) {
-            if (err)
-                throw err;
-            res.json(results);
+            if (err) {
+                res.json({
+                    success: false,
+                    error: err
+                });
+            }
+            else {
+                res.json({
+                    success: true,
+                    error: false,
+                    serviceAccessKey: key,
+                    serviceID: results[0]["ID(n)"]
+                });
+            }
         });
     };
     RegisterEndpoint.prototype.getMethod = function () {

@@ -5,7 +5,7 @@ var PropagateEndpoint = (function () {
         this.db = options.database;
         this.io = options.socket;
     }
-    PropagateEndpoint.prototype.getRoute = function (req, res) {
+    PropagateEndpoint.prototype.propagate = function (req, res, serviceID) {
         var btc = [];
         var iopushs = [];
         if (req.body["highlightNode"]) {
@@ -20,9 +20,10 @@ var PropagateEndpoint = (function () {
                 if (!utils_1.Utils.defined(node, ["ip", "x", "y"]))
                     return;
                 btc.push({
-                    query: "CREATE (n:CNode{\n\t\t\t\t\t\tip: {ip}, x: {x}, y: {y}}) RETURN ID(n)",
+                    query: "MATCH (s:Service) WHERE ID(s)={serviceID}\n\t\t\t\t\tCREATE (s)\n\t\t\t\t\t\t-[:PROVIDED{lastUpdated:{lastUpdated}}]->\n\t\t\t\t\t(n:CNode{ip: {ip}, x: {x}, y: {y}})\n\t\t\t\t\tRETURN ID(n)",
                     params: {
-                        ip: node.ip, x: node.x, y: node.y }
+                        ip: node.ip, x: node.x, y: node.y, serviceID: serviceID,
+                        lastUpdated: new Date().getTime() }
                 });
             }
             iopushs.push({ addNode: req.body.addNode });
@@ -57,6 +58,41 @@ var PropagateEndpoint = (function () {
             res.json(results);
         });
         this.io.sockets.emit("networkupdate", iopushs);
+    };
+    PropagateEndpoint.prototype.updateServiceMeta = function (id) {
+        this.db.cypher({
+            query: "MATCH (s:Service{id : {id}}) SET s.activity=s.activity + 1, s.lastActivity={lastActivity}",
+            params: {
+                id: id,
+                lastActivity: new Date().getTime()
+            }
+        }, function (error) { console.warn(error); });
+    };
+    PropagateEndpoint.prototype.getRoute = function (req, res) {
+        var _this = this;
+        if (!utils_1.Utils.defined(req.body, ["key", "serviceid"])) {
+            res.json({ error: "Access Key and Service ID required for propagation!" });
+            return;
+        }
+        else {
+            console.log(req.body);
+            this.db.cypher({
+                query: "MATCH (s:Service) WHERE ID(s)={id} AND s.key={key} RETURN s",
+                params: { key: req.body.key, id: req.body.serviceid }
+            }, function (error, result) {
+                if (error) {
+                    return res.json({ error: error });
+                }
+                if (result.length >= 1) {
+                    _this.io.sockets.emit("socketemitting", result[0]);
+                    _this.updateServiceMeta(req.body.serviceid);
+                    _this.propagate(req, res, req.body.serviceid);
+                }
+                else {
+                    return res.json({ error: "Authentification Invalid." });
+                }
+            });
+        }
     };
     PropagateEndpoint.prototype.getMethod = function () {
         return "POST";
