@@ -71,6 +71,7 @@ class Backend {
 
 }
 
+
 (function main(){
 	let b : Backend = new Backend();
 	b.beginSocketServe();
@@ -80,5 +81,12 @@ class Backend {
 
 	http.listen(3001, () => {
 		console.log("Listening on http://127.0.0.1:3001");
+	});
+
+	process.on('uncaughtException', (err) => {
+		console.warn("Something terrible happened! Exception:");
+		console.warn(err);
+		console.warn("Attempting to recover from Error...");
+		return main();
 	});
 })();

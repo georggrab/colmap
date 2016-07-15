@@ -68,4 +68,10 @@ var Backend = (function () {
     http.listen(3001, function () {
         console.log("Listening on http://127.0.0.1:3001");
     });
+    process.on('uncaughtException', function (err) {
+        console.warn("Something terrible happened! Exception:");
+        console.warn(err);
+        console.warn("Attempting to recover from Error...");
+        return main();
+    });
 })();
