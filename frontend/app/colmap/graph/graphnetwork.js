@@ -5,7 +5,8 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var CNode = (function () {
-    function CNode(type) {
+    function CNode(__parentNetwork, type) {
+        this.__parentNetwork = __parentNetwork;
         this.type = type;
         this.connections = [];
     }
@@ -182,7 +183,7 @@ var GeoGraphNetwork = (function (_super) {
             }
             switch (genericNode.n.labels[0]) {
                 case "CNode":
-                    var node = new CNode(new Coords(genericNode.n.properties.x, genericNode.n.properties.y));
+                    var node = new CNode(this, new Coords(genericNode.n.properties.x, genericNode.n.properties.y));
                     node["<id>"] = genericNode.n._id;
                     node["<host>"] = new Host(genericNode.n.properties.ip);
                     this.add(genericNode.n._id, node);

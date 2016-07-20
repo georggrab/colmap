@@ -2,12 +2,18 @@ import { Component, Input, Pipe } from '@angular/core';
 import { RouteConfig, Router, ROUTER_DIRECTIVES, ROUTER_PROVIDERS } from '@angular/router-deprecated';
 import { MaterialTemplate } from './../../material';
 import { MapComponent } from './../../map.component';
+import { CNode, Coords } from './../graph/graphnetwork';
 
 @Pipe({ name : 'toIterable' }) export class ToIterable {
 	transform(dict : Object) : Array<Object> {
 		var a = [];
 		for (let key in dict){
-			if (dict.hasOwnProperty(key)){
+			if (dict.hasOwnProperty(key) && !key.startsWith("__")){
+				if (dict[key] instanceof Array) { 
+					if (dict[key].length == 0) {
+						continue;
+					}
+				}
 				a.push({key : key, val : dict[key]});
 			}
 		}
@@ -16,12 +22,18 @@ import { MapComponent } from './../../map.component';
 }
 
 @Pipe({ name: 'toConnections'}) export class ToConnections {
-	transform(node : Object) : Array<Object> {
+	transform(node : CNode<Coords>) : Array<Object> {
+		let a = [];
 		if (node && node.hasOwnProperty("connections")){
-			return node["connections"];
-		} else {
-			return [];
+			for (let connection of node.connections){
+				let linkNode = node.__parentNetwork.nodes[connection.from];
+
+				if (linkNode.hasOwnProperty("<host>")){
+					a.push(linkNode["<host>"]);
+				}
+			}
 		}
+		return a;
 	}
 }
 

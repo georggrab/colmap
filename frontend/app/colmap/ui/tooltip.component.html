@@ -35,8 +35,8 @@
 			</thead>
 			<tbody>
 				<tr *ngFor="let keyval of underlyingNode | toConnections; let i=index">
-					<td class="mdl-data-table__cell--non-numeric">connection[{{i}}]</td>
-					<td>(nil)</td>
+					<td class="mdl-data-table__cell--non-numeric">cnn[{{i}}]</td>
+					<td [innerHTML]="keyval"></td>
 				</tr>
 			</tbody>
 		</table>

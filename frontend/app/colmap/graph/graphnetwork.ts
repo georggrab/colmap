@@ -6,10 +6,10 @@ interface ITransferOL {
 }
 
 export class CNode<T>{
-	constructor (public type : T){
+	constructor (public __parentNetwork : GraphNetwork<T>,
+		public type : T){
 	}
 	connections: GraphEdge[] = [];
-
     data: any;
 }
 
@@ -184,7 +184,7 @@ export class GeoGraphNetwork extends GraphNetwork<Coords> implements ITransferOL
 			}
 			switch (genericNode.n.labels[0]) {
 				case "CNode" : 
-					let node = new CNode<Coords>(
+					let node = new CNode<Coords>(this,
 						new Coords(genericNode.n.properties.x, genericNode.n.properties.y));
 					node["<id>"] = genericNode.n._id;
 					node["<host>"] = new Host(genericNode.n.properties.ip);

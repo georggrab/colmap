@@ -21,7 +21,12 @@ var ToIterable = (function () {
     ToIterable.prototype.transform = function (dict) {
         var a = [];
         for (var key in dict) {
-            if (dict.hasOwnProperty(key)) {
+            if (dict.hasOwnProperty(key) && !key.startsWith("__")) {
+                if (dict[key] instanceof Array) {
+                    if (dict[key].length == 0) {
+                        continue;
+                    }
+                }
                 a.push({ key: key, val: dict[key] });
             }
         }
@@ -38,12 +43,17 @@ var ToConnections = (function () {
     function ToConnections() {
     }
     ToConnections.prototype.transform = function (node) {
+        var a = [];
         if (node && node.hasOwnProperty("connections")) {
-            return node["connections"];
+            for (var _i = 0, _a = node.connections; _i < _a.length; _i++) {
+                var connection = _a[_i];
+                var linkNode = node.__parentNetwork.nodes[connection.from];
+                if (linkNode.hasOwnProperty("<host>")) {
+                    a.push(linkNode["<host>"]);
+                }
+            }
         }
-        else {
-            return [];
-        }
+        return a;
     };
     ToConnections = __decorate([
         core_1.Pipe({ name: 'toConnections' }), 
