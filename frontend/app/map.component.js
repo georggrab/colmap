@@ -20,6 +20,7 @@ var displaynodes_1 = require('./colmap/ui/displaynodes');
 var preferences_1 = require('./colmap/state/preferences');
 var server_1 = require('./colmap/network/server');
 var tooltip_component_1 = require('./colmap/ui/tooltip.component');
+var servicecards_component_1 = require('./colmap/ui/servicecards.component');
 var Ol = require('openlayers');
 var MapComponent = (function (_super) {
     __extends(MapComponent, _super);
@@ -132,6 +133,9 @@ var MapComponent = (function (_super) {
             if (connectionInfo.connectedServices) {
                 _this.connectedServices = connectionInfo.connectedServices;
             }
+            if (connectionInfo.allServices) {
+                _this.allServices = connectionInfo.allServices;
+            }
             if (_this.lastNetworkHealth === null) {
                 _this.lastNetworkHealth = connectionInfo.networkHealth;
                 _this.buildNetworkInitial(_this.backendService.downloadNetwork());
@@ -226,6 +230,12 @@ var MapComponent = (function (_super) {
         map.on('singleclick', function (evt) {
             var feature = map.forEachFeatureAtPixel(evt.pixel, function (feature, layer) {
                 console.log("Clicked on Feature near " + evt.coordinate);
+                var pan = ol.animation.pan({
+                    duration: 1000,
+                    source: map.getView().getCenter()
+                });
+                map.beforeRender(pan);
+                map.getView().setCenter(feature.getGeometry().getCoordinates());
             });
         });
     };
@@ -253,6 +263,11 @@ var MapComponent = (function (_super) {
             var feature = _this.map.forEachFeatureAtPixel(pixel, function (feature) {
                 return feature;
             });
+            if (event.dragging) {
+                // don't display tooltip when dragging the map
+                _this.currentHover = null;
+                return;
+            }
             if (feature && feature !== _this.currentHover) {
                 _this.currentHover = feature;
                 var settings_1 = new displaynodes_1.DisplaySettings();
@@ -261,7 +276,6 @@ var MapComponent = (function (_super) {
                     feature.setStyle(settings_1.NodeStyleHovering);
                     var node = feature.get("DataLink");
                     if (node) {
-                        console.log(node);
                         var _loop_1 = function(edge) {
                             var view = edge.getView();
                             if (view) {
@@ -284,7 +298,7 @@ var MapComponent = (function (_super) {
                 }
             }
             else {
-                _this.currentHover = undefined;
+                //this.currentHover = null;
                 _this.pendingUndoHovers.forEach(function (func) {
                     func();
                 });
@@ -297,7 +311,7 @@ var MapComponent = (function (_super) {
         core_1.Component({
             selector: 'map',
             templateUrl: 'app/map.component.html',
-            directives: [tooltip_component_1.ToolTip]
+            directives: [tooltip_component_1.ToolTip, servicecards_component_1.ServiceCards]
         }), 
         __metadata('design:paramtypes', [router_deprecated_1.RouteParams, preferences_1.PerferenceService, server_1.BackendService])
     ], MapComponent);

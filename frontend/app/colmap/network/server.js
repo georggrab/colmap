@@ -47,7 +47,6 @@ var BackendService = (function () {
         var _this = this;
         this.conn.emit('wantNetwork');
         return Observable_1.Observable.create(function (observer) {
-            // TODO Stub for Network things!	
             _this.conn.on('getNetwork', function (network) {
                 var g = new graphnetwork_1.GeoGraphNetwork();
                 g.constructFrom(network);

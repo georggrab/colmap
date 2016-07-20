@@ -10,6 +10,7 @@ import { PerferenceService, CStorage } from './colmap/state/preferences';
 import { LocalStorage } from './colmap/state/storage/localstorage';
 import { BackendService } from './colmap/network/server'; 
 import { ToolTip } from './colmap/ui/tooltip.component';
+import { ServiceCards } from './colmap/ui/servicecards.component';
 
 @Component({
 	selector: 'colmap-root',
@@ -21,6 +22,7 @@ import { ToolTip } from './colmap/ui/tooltip.component';
 		ROUTER_PROVIDERS,
 		PerferenceService,
 		ToolTip,
+		ServiceCards,
 		provide(CStorage, {useClass : LocalStorage}),
 		provide(BackendService, {useClass : BackendService})
 		

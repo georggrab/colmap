@@ -12,13 +12,14 @@ import { BackendService } from './colmap/network/server';
 import { Observable } from 'rxjs/Observable';
 
 import { ToolTip } from './colmap/ui/tooltip.component';
+import { ServiceCards } from './colmap/ui/servicecards.component';
 
 import * as Ol from 'openlayers';
 
 @Component({
 	selector: 'map',
 	templateUrl: 'app/map.component.html',
-	directives : [ToolTip]
+	directives : [ToolTip, ServiceCards]
 })
 export class MapComponent extends MaterialTemplate implements OnInit {
 	/* Databound Attributes: */
@@ -34,7 +35,6 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 	map: any;
 
 	/* Things we need for the GraphNetwork */
-	//TODO is a ref to Graphnetwork really neccessary??
 	network : GeoGraphNetwork;
 
 	lastNetworkHealth : GraphNetworkHealth = null;
@@ -60,6 +60,9 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 	// functions that undoes the change.
 	pendingUndoHovers : Set<Object> = new Set<Object>();
 	currentHover = undefined;
+
+	// Input for <servicecards> component
+	allServices : Map<string, Object>;
 
 	constructor(private routeParams: RouteParams, 
 		private preferences : PerferenceService,
@@ -147,6 +150,9 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 			}
 			if (connectionInfo.connectedServices){
 				this.connectedServices = connectionInfo.connectedServices;
+			}
+			if (connectionInfo.allServices){
+				this.allServices = connectionInfo.allServices;
 			}
 			if (this.lastNetworkHealth === null){
 				this.lastNetworkHealth = connectionInfo.networkHealth;
@@ -247,6 +253,12 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 		map.on('singleclick', (evt) => {
 			let feature = map.forEachFeatureAtPixel(evt.pixel, (feature, layer) => {
 				console.log(`Clicked on Feature near ${evt.coordinate}`);
+				let pan = ol.animation.pan({
+					duration: 1000,
+					source: map.getView().getCenter()
+				});
+				map.beforeRender(pan);
+				map.getView().setCenter(feature.getGeometry().getCoordinates());
 			})
 		});
 	}
@@ -278,6 +290,13 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 			let pixel = this.map.getEventPixel(event.originalEvent);
 			let feature = this.map.forEachFeatureAtPixel(pixel, (feature) => {
 				return feature});
+
+			if (event.dragging){
+				// don't display tooltip when dragging the map
+				this.currentHover = null;
+				return;
+			}
+
 			if (feature && feature !== this.currentHover){
 				this.currentHover = feature;
 				let settings = new DisplaySettings();
@@ -288,7 +307,6 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 
 					let node = feature.get("DataLink");
 					if (node){
-						console.log(node);
 						for (let edge of node.connections){
 							let view = edge.getView();
 							if (view){
@@ -307,7 +325,7 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 					// Evaluate if this makes sense, vermutlich nicht..
 				}
 			} else {
-				this.currentHover = undefined;
+				//this.currentHover = null;
 				this.pendingUndoHovers.forEach((func : () => void) => {
 					func();
 				})

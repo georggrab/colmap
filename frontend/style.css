@@ -80,6 +80,11 @@ map {
 .mdl-switch.is-checked .mdl-switch__track {
   background: rgba(255, 94, 179, 0.7) !important; }
 
+#servicecards {
+  position: absolute;
+  right: 10px;
+  top: 10px; }
+
 #tooltip {
   position: absolute;
   z-index: 5;

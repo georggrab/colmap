@@ -47,7 +47,6 @@ export class BackendService {
 	downloadNetwork() : Observable<GeoGraphNetwork> {
 		this.conn.emit('wantNetwork');
 		return Observable.create((observer) => {
-			// TODO Stub for Network things!	
 			this.conn.on('getNetwork', (network) => {
 				let g = new GeoGraphNetwork();
 				g.constructFrom(network);

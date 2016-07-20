@@ -12,6 +12,16 @@ var CNode = (function () {
     return CNode;
 }());
 exports.CNode = CNode;
+var Host = (function () {
+    function Host(host) {
+        this.host = host;
+    }
+    Host.prototype.toString = function () {
+        return "<a target=\"_blank\" \n\t\t\thref=\"https://who.is/whois-ip/ip-address/" + this.host + "\">\n\t\t\t\twhois://" + this.host + "\n\t\t\t</a>";
+    };
+    return Host;
+}());
+exports.Host = Host;
 var Coords = (function () {
     function Coords(longitude, latitude) {
         this.longitude = longitude;
@@ -136,7 +146,6 @@ var GraphNetwork = (function () {
                 // both directions of the GraphEdge. Cross Referencing properties maybe.
                 if (bidirectional) {
                     if (this.nodes.hasOwnProperty(connect)) {
-                        console.log("Adding something bidirectionally.");
                         // TODO Minimal spannender Baum?
                         var g_obsolete = new GraphEdge(connect, node, bidirectional, null);
                         this.nodes[connect].connections.push(g_obsolete);
@@ -164,8 +173,6 @@ var GeoGraphNetwork = (function (_super) {
         _super.apply(this, arguments);
     }
     GeoGraphNetwork.prototype.constructFrom = function (socketObject) {
-        // Socketobject contains, CNodes, Users and Services.
-        // TODO separate this.
         for (var _i = 0, socketObject_1 = socketObject; _i < socketObject_1.length; _i++) {
             var genericNode = socketObject_1[_i];
             if (genericNode.n.labels.length < 1) {
@@ -175,7 +182,10 @@ var GeoGraphNetwork = (function (_super) {
             }
             switch (genericNode.n.labels[0]) {
                 case "CNode":
-                    this.add(genericNode.n._id, new CNode(new Coords(genericNode.n.properties.x, genericNode.n.properties.y)));
+                    var node = new CNode(new Coords(genericNode.n.properties.x, genericNode.n.properties.y));
+                    node["<id>"] = genericNode.n._id;
+                    node["<host>"] = new Host(genericNode.n.properties.ip);
+                    this.add(genericNode.n._id, node);
                     break;
                 case "Service":
                     break;

@@ -1,0 +1,24 @@
+<div id="servicecards">
+<div *ngFor="let service of services | toCard" class="card-initial mdl-card mdl-shadow--2dp">
+  <div class="mdl-card__title mdl-card--expand">
+    <h4>
+      Service {{service._id}} connected.<br/>
+      <span style="font-family:monospace">{{service.properties.type}}</span>
+    </h4>
+  </div>
+  <div class="mdl-card__actions mdl-card--border">
+    <a href="{{service.properties.trigger}}" class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
+    Service Trigger
+    </a>
+    <div class="mdl-layout-spacer"></div>
+    <i class="material-icons">code</i>
+  </div>
+  <div class="mdl-card__actions mdl-card--border">
+    <a (click)="delete(service._id)" class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
+    Close
+    </a>
+    <div class="mdl-layout-spacer"></div>
+    <i class="material-icons">close</i>
+  </div>
+</div>
+</div>

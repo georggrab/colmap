@@ -13,6 +13,16 @@ export class CNode<T>{
     data: any;
 }
 
+export class Host {
+	constructor (private host : string) { }
+	toString() : string {
+		return `<a target="_blank" 
+			href="https://who.is/whois-ip/ip-address/${this.host}">
+				whois://${this.host}
+			</a>`;
+	}
+}
+
 export class Coords {
 	toString() : string {
 		/* toString() wird beim anzeigen der internen Knoteninformationen benutzt.
@@ -145,7 +155,6 @@ export class GraphNetwork<T> {
 				// both directions of the GraphEdge. Cross Referencing properties maybe.
 				if (bidirectional){
 					if (this.nodes.hasOwnProperty(connect)){
-						console.log("Adding something bidirectionally.");
 						// TODO Minimal spannender Baum?
 						let g_obsolete : GraphEdge = new GraphEdge(connect, node, bidirectional, null);
 						this.nodes[connect].connections.push(g_obsolete);
@@ -167,8 +176,6 @@ export class GraphNetwork<T> {
 export class GeoGraphNetwork extends GraphNetwork<Coords> implements ITransferOL {
 
 	constructFrom(socketObject : Array<any>){
-		// Socketobject contains, CNodes, Users and Services.
-		// TODO separate this.
 		for (let genericNode of socketObject){
 			if (genericNode.n.labels.length < 1) {
 				console.log("Warning: node has no labels:");
@@ -177,9 +184,11 @@ export class GeoGraphNetwork extends GraphNetwork<Coords> implements ITransferOL
 			}
 			switch (genericNode.n.labels[0]) {
 				case "CNode" : 
-					this.add(genericNode.n._id, 
-						new CNode<Coords>(
-							new Coords(genericNode.n.properties.x, genericNode.n.properties.y)));
+					let node = new CNode<Coords>(
+						new Coords(genericNode.n.properties.x, genericNode.n.properties.y));
+					node["<id>"] = genericNode.n._id;
+					node["<host>"] = new Host(genericNode.n.properties.ip);
+					this.add(genericNode.n._id, node);
 					break;
 				case "Service":
 					break;

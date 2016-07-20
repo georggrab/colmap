@@ -18,6 +18,7 @@ var preferences_1 = require('./colmap/state/preferences');
 var localstorage_1 = require('./colmap/state/storage/localstorage');
 var server_1 = require('./colmap/network/server');
 var tooltip_component_1 = require('./colmap/ui/tooltip.component');
+var servicecards_component_1 = require('./colmap/ui/servicecards.component');
 var AppComponent = (function () {
     function AppComponent() {
     }
@@ -30,6 +31,7 @@ var AppComponent = (function () {
                 router_deprecated_1.ROUTER_PROVIDERS,
                 preferences_1.PerferenceService,
                 tooltip_component_1.ToolTip,
+                servicecards_component_1.ServiceCards,
                 core_1.provide(preferences_1.CStorage, { useClass: localstorage_1.LocalStorage }),
                 core_1.provide(server_1.BackendService, { useClass: server_1.BackendService })
             ]
