@@ -44,7 +44,7 @@ var ToConnections = (function () {
     }
     ToConnections.prototype.transform = function (node) {
         var a = [];
-        if (node && node.hasOwnProperty("connections")) {
+        if (node && node.hasOwnProperty("connections") && node.__parentNetwork != null) {
             for (var _i = 0, _a = node.connections; _i < _a.length; _i++) {
                 var connection = _a[_i];
                 var linkNode = node.__parentNetwork.nodes[connection.from];

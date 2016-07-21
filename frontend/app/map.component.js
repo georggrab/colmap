@@ -51,6 +51,7 @@ var MapComponent = (function (_super) {
         // functions that undoes the change.
         this.pendingUndoHovers = new Set();
         this.currentHover = undefined;
+        this.chatWindow = false;
     }
     MapComponent.prototype.displayNetworkUpdate = function (update) {
         // todo refactor this function so not so much mutable state is being
@@ -78,7 +79,8 @@ var MapComponent = (function (_super) {
             var edge = this.network.findEdge(addedEdge);
             if (edge === null) {
                 edge = this.network.connector(addedEdge.from, [addedEdge.to], false);
-                displaynodes_1.DisplayNodeUtils.displayEdgeRaw(edge, this.network, this.nodeFeatures);
+                if (edge !== null)
+                    displaynodes_1.DisplayNodeUtils.displayEdgeRaw(edge, this.network, this.nodeFeatures);
             }
             else {
                 // Todo: add a settings option that allows to turn this off.

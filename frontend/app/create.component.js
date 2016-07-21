@@ -21,12 +21,16 @@ var CreateComponent = (function (_super) {
     function CreateComponent(router) {
         _super.call(this);
         this.router = router;
+        this.hl = require("highlightjs");
     }
     CreateComponent.prototype.ngOnInit = function () {
         this.mapID = Math.random().toString(16).slice(2);
     };
+    CreateComponent.prototype.ngAfterViewInit = function () {
+        var code = document.getElementById("apicode");
+        this.hl.highlightBlock(code);
+    };
     CreateComponent.prototype.toMap = function (mapID) {
-        // TODO warum funktioniert router.navigate nicht?
         location.href = "/map/" + mapID;
     };
     CreateComponent = __decorate([

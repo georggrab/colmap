@@ -12,7 +12,7 @@
     <div class="mdl-layout-spacer"></div>
     <!-- Navigation -->
     <nav class="mdl-navigation">
-      <a class="mdl-navigation__link" href="">Chat</a>
+      <span (click)="chatWindow = !chatWindow" [attr.data-badge]="chatMessages" class="mdl-navigation__link mdl-badge mdl-badge--overlap">Chat</span>
         <span style="margin-right:50px;" class="mdl-switch__label">GeoGraphnetwork</span>
       <label for="switch1" class="mdl-switch mdl-js-switch">
         <input (click)="btnToggled()" [(ngModel)]="graphtoggle" type="checkbox" id="switch1" class="mdl-switch__input">
@@ -50,5 +50,6 @@
   </div>
   <tooltip [map]="map" [display]="currentHover"></tooltip>
   <servicecards [services]="allServices"></servicecards>
+  <chat *ngIf="chatWindow"></chat>
 </main>
 </div>

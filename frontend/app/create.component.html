@@ -1,11 +1,64 @@
-<h1>COLMAP</h1>
-<p>ALorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas ac diam tortor. Fusce consequat porttitor lorem, ac iaculis magna mattis sed. Nulla et ante at urna efficitur tempus. In dapibus dapibus auctor. nonymous, collaborative geographic intelligence platform</p>
-<form action="#">
-<div class="mdl-textfield mdl-js-textfield">
-<input value="{{mapID}}" class="mdl-textfield__input" type="text" id="sample1">
-<label class="mdl-textfield__label" for="sample1">Text...</label>
+<div class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer
+            mdl-layout--fixed-header">
+  <header class="mdl-layout__header">
+    <div class="mdl-layout__header-row">
+	<span id="headerRight" class="mdl-layout-title">Platform for Geographic Collaboration</span>
+      <div class="mdl-layout-spacer"></div>
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable
+                  mdl-textfield--floating-label mdl-textfield--align-right">
+        <div class="mdl-textfield__expandable-holder">
+          <input class="mdl-textfield__input" type="text" name="sample"
+                 id="fixed-header-drawer-exp">
+        </div>
+      </div>
+    </div>
+  </header>
+  <div class="mdl-layout__drawer">
+<span class="mdl-layout-title">COLMAP</span>
+    <nav class="mdl-navigation">
+      <a class="mdl-navigation__link" href="https://github.com/talkdirty/colmap">Github</a>
+      <a class="mdl-navigation__link" href="https://github.com/talkdirty/colmap">Download</a>
+    </nav>
+  </div>
+  <main class="mdl-layout__content">
+    <div class="page-content"><!-- Your content goes here -->
+			<pre><code id="apicode" class="python">
+			import colmap.api.v1 as api
+
+			def do_things(context, args):
+				# do awesome things here!
+
+			def main(args):
+				context = api.ColmapCtx("http://localhost:3001", "{{mapID}}")
+				context = api.register_service(context, "testService", "script/oneshot")
+
+				payload = api.Request(auth=context.get_api_key())
+
+				if len(args) >= 2:
+					do_things(context, args[1:])
+				else:
+					print "No Args!"
+			</code></pre>
+			<div class="demo-card-square mdl-card mdl-shadow--2dp">
+  <div id="create-card" class="mdl-card__title mdl-card--expand">
+    <h2 class="mdl-card__title-text">Create or connect to map</h2>
+  </div>
+  <div class="mdl-card__supporting-text">
+			<form action="#">
+			<div class="mdl-textfield mdl-js-textfield">
+			<input [(ngModel)]="mapID" class="mdl-textfield__input" type="text" id="sample1">
+			<label class="mdl-textfield__label" for="sample1">Text...</label>
+			</div>
+			</form>
+  </div>
+  <div class="mdl-card__actions mdl-card--border">
+    <a (click)="toMap(mapID)" class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
+      CREATE or CONNECT
+    </a>
+  </div>
 </div>
-<button (click)="toMap(mapID)" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-create
-</button>
-</form>
+
+    </div>
+  </main>
+</div>
+

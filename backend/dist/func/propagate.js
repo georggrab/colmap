@@ -6,14 +6,10 @@ var PropagateEndpoint = (function () {
         this.io = options.socket;
     }
     PropagateEndpoint.prototype.propagate = function (req, res, serviceID) {
+        var _this = this;
         var btc = [];
         var iopushs = [];
-        if (req.body["highlightNode"]) {
-            iopushs.push({ highlightNode: req.body.highlightNode });
-        }
-        if (req.body["highlightEdge"]) {
-            iopushs.push({ highlightEdge: req.body.highlightEdge });
-        }
+        var results = [];
         if (req.body["addNode"]) {
             for (var _i = 0, _a = req.body.addNode; _i < _a.length; _i++) {
                 var node = _a[_i];
@@ -27,6 +23,12 @@ var PropagateEndpoint = (function () {
                 });
             }
             iopushs.push({ addNode: req.body.addNode });
+        }
+        if (req.body["highlightNode"]) {
+            iopushs.push({ highlightNode: req.body.highlightNode });
+        }
+        if (req.body["highlightEdge"]) {
+            iopushs.push({ highlightEdge: req.body.highlightEdge });
         }
         if (req.body["addEdge"]) {
             for (var _b = 0, _c = req.body.addEdge; _b < _c.length; _b++) {
@@ -55,9 +57,15 @@ var PropagateEndpoint = (function () {
         }
         var streams = this.db.cypher({ queries: btc }, function (err, results) {
             console.log("Finished propagating: " + err);
+            if (req.body["addNode"]) {
+                for (var i = 0; i < req.body.addNode.length; i++) {
+                    debugger;
+                    iopushs[0].addNode[i]["id"] = results[i][0]["ID(n)"];
+                }
+            }
+            _this.io.sockets.emit("networkupdate", iopushs);
             res.json(results);
         });
-        this.io.sockets.emit("networkupdate", iopushs);
     };
     PropagateEndpoint.prototype.updateServiceMeta = function (id) {
         this.db.cypher({

@@ -10,7 +10,8 @@
     'angular2-in-memory-web-api': 'node_modules/angular2-in-memory-web-api',
     'rxjs':                       'node_modules/rxjs',
     'openlayers':                 'node_modules/openlayers',
-    'socket.io-client':            'node_modules/socket.io-client' 
+    'socket.io-client':            'node_modules/socket.io-client' ,
+    'highlightjs': 'node_modules/highlightjs' 
   };
   // packages tells the System loader how to load when no filename and/or no extension
   var packages = {
@@ -18,7 +19,8 @@
     'rxjs':                       { defaultExtension: 'js' },
     'angular2-in-memory-web-api': { main: 'index.js', defaultExtension: 'js' },
     'openlayers':                 { main: 'dist/ol-debug.js', defaultExtension: 'js'},
-    'socket.io-client':                   { main: 'socket.io.js', defaultExtension: 'js'}
+    'socket.io-client':                   { main: 'socket.io.js', defaultExtension: 'js'},
+    'highlightjs': {main: 'highlight.pack.min.js', defaultExtension: 'js'}
   };
   var ngPackageNames = [
     'common',

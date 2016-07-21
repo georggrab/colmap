@@ -67,7 +67,7 @@ var BackendService = (function () {
                                 for (var _a = 0, _b = entry[updateType]; _a < _b.length; _a++) {
                                     var el = _b[_a];
                                     var node = {};
-                                    node[el.ip] = new graphnetwork_1.CNode(new graphnetwork_1.Coords(el.x, el.y));
+                                    node[el.id] = new graphnetwork_1.CNode(null, new graphnetwork_1.Coords(el.x, el.y));
                                     additiveNodes.push(node);
                                 }
                                 break;
@@ -83,7 +83,19 @@ var BackendService = (function () {
                             case "addEdge":
                                 for (var _e = 0, _f = entry[updateType]; _e < _f.length; _e++) {
                                     var el = _f[_e];
-                                    additions.push(new graphnetwork_1.GraphEdge(el[0], el[1], false, null));
+                                    try {
+                                        additions.push(new graphnetwork_1.GraphEdge(el[0], el[1], false, null));
+                                    }
+                                    catch (e) {
+                                        //TODO sometimes server sends this rogue response, fix it
+                                        try {
+                                            additions.push(new graphnetwork_1.GraphEdge(el[0], el[1][0][0]["ID(n)"], false, null));
+                                        }
+                                        catch (e) {
+                                            console.log("Fatal error adding edge:");
+                                            console.log(el);
+                                        }
+                                    }
                                 }
                                 break;
                             case "rmNode":

@@ -64,6 +64,10 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 	// Input for <servicecards> component
 	allServices : Map<string, Object>;
 
+	// new chat messages
+	chatMessages: number;
+	chatWindow : boolean = false;
+
 	constructor(private routeParams: RouteParams, 
 		private preferences : PerferenceService,
 		private backendService : BackendService){
@@ -95,7 +99,8 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 			let edge = this.network.findEdge(addedEdge);
 			if (edge === null){
 				edge = this.network.connector(addedEdge.from, [addedEdge.to], false);
-				DisplayNodeUtils.displayEdgeRaw(edge, this.network, this.nodeFeatures);
+				if (edge !== null)
+					DisplayNodeUtils.displayEdgeRaw(edge, this.network, this.nodeFeatures);
 			} else {
 				// Todo: add a settings option that allows to turn this off.
 				console.log(`Edge ${edge} exists, highlighting instead.`);
@@ -262,7 +267,6 @@ export class MapComponent extends MaterialTemplate implements OnInit {
 			})
 		});
 	}
-
 
 	ngOnInit(){
 		let gotId = this.routeParams.get('mapid');

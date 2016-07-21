@@ -105,6 +105,10 @@ var GraphNetwork = (function () {
     // findEdge(e: GraphEdgeCriteria) : Maybe GraphEdge
     GraphNetwork.prototype.findEdge = function (e) {
         var edgeStartNode = this.nodes[e.from];
+        if (edgeStartNode === undefined) {
+            console.log("Warning: Cannot find <from>ID in network: " + e.from);
+            return null;
+        }
         for (var _i = 0, _a = edgeStartNode.connections; _i < _a.length; _i++) {
             var connection = _a[_i];
             if (connection.to == e.to)
@@ -138,7 +142,7 @@ var GraphNetwork = (function () {
                     var connection = _b[_a];
                     if (connection.to == connect) {
                         console.log("Warning: Edge already exists! Ignoring this.");
-                        return;
+                        return null;
                     }
                 }
                 lastAddedEdge = new GraphEdge(node, connect, bidirectional, null);
@@ -152,13 +156,13 @@ var GraphNetwork = (function () {
                         this.nodes[connect].connections.push(g_obsolete);
                     }
                     else {
-                        throw "No such node in Network: " + connect + " (while connecting to: " + node + ")";
+                        return null;
                     }
                 }
             }
         }
         else {
-            throw "No such node in Network: " + node;
+            return null;
         }
         return lastAddedEdge;
     };
@@ -176,6 +180,9 @@ var GeoGraphNetwork = (function (_super) {
     GeoGraphNetwork.prototype.constructFrom = function (socketObject) {
         for (var _i = 0, socketObject_1 = socketObject; _i < socketObject_1.length; _i++) {
             var genericNode = socketObject_1[_i];
+            if (!genericNode.n) {
+                continue;
+            }
             if (genericNode.n.labels.length < 1) {
                 console.log("Warning: node has no labels:");
                 console.log(genericNode);

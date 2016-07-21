@@ -66,7 +66,7 @@ export class BackendService {
 							case "addNode": 
 								for (let el of entry[updateType]){
 									let node = {};
-									node[el.ip] = new CNode<Coords>(new Coords(el.x,el.y));
+									node[el.id] = new CNode<Coords>(null, new Coords(el.x,el.y));
 									additiveNodes.push(node);
 								}
 							break;
@@ -80,7 +80,18 @@ export class BackendService {
 							break;
 							case "addEdge":
 								for (let el of entry[updateType]){
-									additions.push(new GraphEdge(el[0], el[1], false, null));
+									try {
+										additions.push(new GraphEdge(el[0], el[1], false, null))
+									} catch (e) {
+										//TODO sometimes server sends this rogue response, fix it
+										try {
+											additions.push(new GraphEdge(el[0], el[1][0][0]["ID(n)"], false, null));
+										} catch (e) {
+											console.log("Fatal error adding edge:");
+											console.log(el);
+										}
+
+									}
 								}
 
 							break;

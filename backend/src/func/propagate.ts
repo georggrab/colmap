@@ -52,15 +52,9 @@ export class PropagateEndpoint implements Endpoint {
 		let btc = [];
 		let iopushs = [];
 
-		if (req.body["highlightNode"]){
-			// (CNode)[] -> socket.io push to connected users
-			iopushs.push({highlightNode : req.body.highlightNode});
+		let results = []
 
-		} if (req.body["highlightEdge"]){
-			// (CNode, CNode)[] -> socket.io push to connected users
-			iopushs.push({highlightEdge : req.body.highlightEdge});
-
-		} if (req.body["addNode"]){
+		if (req.body["addNode"]){
 			// (CNode)[] -> neo4j graph addition; socket.io push to connected users
 			// Todo fail gracefully
 			for (let node of req.body.addNode){
@@ -78,11 +72,18 @@ export class PropagateEndpoint implements Endpoint {
 			}
 			iopushs.push({addNode : req.body.addNode});
 			// returns (_nodeid)
+		} 
+		if (req.body["highlightNode"]){
+			// (CNode)[] -> socket.io push to connected users
+			iopushs.push({highlightNode : req.body.highlightNode});
+
+		} if (req.body["highlightEdge"]){
+			// (CNode, CNode)[] -> socket.io push to connected users
+			iopushs.push({highlightEdge : req.body.highlightEdge});
 
 		} if (req.body["addEdge"]){
 			// (CNode, CNode)[] -> neo4j graph addition; socket.io push to connected users
 			for (let nodes of req.body.addEdge){
-				console.log(nodes);
 				btc.push({
 					query: `MATCH (r0:CNode), (r1:CNode) WHERE ID(r0)={firstnode} AND ID(r1)={secondnode}
 						CREATE (r0)-[:HYPERLINKS]->(r1) RETURN r0,r1`,
@@ -109,10 +110,18 @@ export class PropagateEndpoint implements Endpoint {
 		
 		let streams = this.db.cypher({queries : btc}, (err, results) => {
 			console.log("Finished propagating: " + err);
+
+			if (req.body["addNode"]){
+				for (let i = 0; i<req.body.addNode.length; i++){
+					debugger;
+					iopushs[0].addNode[i]["id"] = results[i][0]["ID(n)"]
+				}
+			}
+			this.io.sockets.emit("networkupdate", iopushs);
+
 			res.json(results);
 		});
 
-		this.io.sockets.emit("networkupdate", iopushs);
 
 	}
 

@@ -112,6 +112,10 @@ export class GraphNetwork<T> {
 	// findEdge(e: GraphEdgeCriteria) : Maybe GraphEdge
 	public findEdge(e: GraphEdge){
 		let edgeStartNode = this.nodes[e.from];
+		if (edgeStartNode === undefined){
+			console.log("Warning: Cannot find <from>ID in network: " + e.from);
+			return null;
+		}
 		for (let connection of edgeStartNode.connections){
 			if (connection.to == e.to) return connection;
 		}
@@ -143,7 +147,7 @@ export class GraphNetwork<T> {
 				for (let connection of this.nodes[node].connections){
 					if (connection.to == connect){
 						console.log("Warning: Edge already exists! Ignoring this.");
-						return;
+						return null;
 					}
 				}
 
@@ -159,12 +163,12 @@ export class GraphNetwork<T> {
 						let g_obsolete : GraphEdge = new GraphEdge(connect, node, bidirectional, null);
 						this.nodes[connect].connections.push(g_obsolete);
 					} else {
-						throw `No such node in Network: ${connect} (while connecting to: ${node})`;
+						return null;
 					}
 				}
 			}
 		} else {
-			throw `No such node in Network: ${node}`;
+			return null;
 		}
 		return lastAddedEdge;
 	}
@@ -177,6 +181,7 @@ export class GeoGraphNetwork extends GraphNetwork<Coords> implements ITransferOL
 
 	constructFrom(socketObject : Array<any>){
 		for (let genericNode of socketObject){
+			if (!genericNode.n) { continue; }
 			if (genericNode.n.labels.length < 1) {
 				console.log("Warning: node has no labels:");
 				console.log(genericNode);

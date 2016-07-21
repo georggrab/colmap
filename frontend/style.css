@@ -9,18 +9,35 @@ body {
   width: 200px;
   z-index: 2; }
 
+.demo-card-square {
+  left: 0;
+  right: 0;
+  margin: auto;
+  margin-top: 15px;
+  margin-bottom: 15px; }
+
 .main-desc {
-  display: block;
-  position: absolute;
-  top: 150px;
-  left: 50px; }
-  .main-desc h1 {
-    font-weight: 300; }
-  .main-desc p {
-    font-weight: 100;
-    text-transform: uppercase;
-    width: 400px;
-    text-align: justify; }
+  /*display:block;
+	position:absolute;
+
+	// Title
+	h1{
+		font-weight:300;
+	}
+
+	// Short Description
+	p{
+		font-weight:100;
+		text-transform:uppercase;
+		    width: 400px;
+    text-align: justify;
+	}*/ }
+  .main-desc #create-card {
+    background: #3E4EB8;
+    color: white; }
+  .main-desc #headerRight {
+    margin-left: 250px;
+    display: inline-block; }
 
 .title-mapid {
   cursor: default; }

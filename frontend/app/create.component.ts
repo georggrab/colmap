@@ -9,15 +9,21 @@ import { MapComponent } from './map.component';
 })
 export class CreateComponent extends MaterialTemplate {
 	mapID: string;
+	hl: any;
+
 	constructor(private router: Router){
 		super();
+		this.hl = require("highlightjs");
 	}
 	ngOnInit(){
 		this.mapID = Math.random().toString(16).slice(2);
 	}
+	ngAfterViewInit(){
+		let code = document.getElementById("apicode");
+		this.hl.highlightBlock(code);
+	}
 
 	toMap(mapID : string){
-		// TODO warum funktioniert router.navigate nicht?
 		location.href = "/map/" + mapID;
 	}
 }

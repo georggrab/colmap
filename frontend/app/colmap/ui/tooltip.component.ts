@@ -24,7 +24,7 @@ import { CNode, Coords } from './../graph/graphnetwork';
 @Pipe({ name: 'toConnections'}) export class ToConnections {
 	transform(node : CNode<Coords>) : Array<Object> {
 		let a = [];
-		if (node && node.hasOwnProperty("connections")){
+		if (node && node.hasOwnProperty("connections") && node.__parentNetwork != null){
 			for (let connection of node.connections){
 				let linkNode = node.__parentNetwork.nodes[connection.from];
 
